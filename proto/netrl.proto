@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package netrl;
+
+message Observation {
+  map<string, string> fields = 1;
+}
+
+message Action {
+  map<string, string> fields = 1;
+}
+
+message StepRequest {
+  Observation observation = 1;
+}
+
+message StepResponse {
+  Action action = 1;
+}
+
+service NetRlBridge {
+  rpc Step(StepRequest) returns (StepResponse);
+}
