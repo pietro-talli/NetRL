@@ -3,12 +3,12 @@ NetRL — Networked Reinforcement Learning Simulation Platform
 ============================================================
 A gymnasium wrapper that simulates a noisy communication channel between
 an RL agent and its environment.  Each step() call transmits the raw
-observation through a C++ Gilbert-Elliott channel (loss + delay) to a
+observation through a configurable channel backend (loss + delay) to a
 central node.  The agent receives the full observation buffer instead of
 the raw observation.
 
-Quick start
------------
+Quick start — Gilbert-Elliott channel (default)
+------------------------------------------------
     import gymnasium as gym
     from netrl import NetworkedEnv, NetworkConfig
 
@@ -21,8 +21,7 @@ Quick start
         buffer_size=10,  # observation window length
         seed=42,
     )
-    base_env = gym.make("CartPole-v1")
-    env = NetworkedEnv(base_env, config)
+    env = NetworkedEnv(gym.make("CartPole-v1"), config)
 
     obs, info = env.reset()
     # obs["observations"].shape == (10, 4)
@@ -32,18 +31,21 @@ Quick start
     print(info["channel_info"]["state"])        # "GOOD" or "BAD"
     print(info["arrived_this_step"])            # True / False
 
-Using a baseline (no C++ required)
------------------------------------
-    from netrl import PerfectChannel
-    env = NetworkedEnv(base_env, config, channel_factory=PerfectChannel)
+ns3 WiFi backend (realistic channel)
+--------------------------------------
+    Build the binary once:
+        bash src/build_ns3_sim.sh
 
-Future ns3 backend
-------------------
-    class NS3Channel(CommChannel):
-        ...  # implement transmit / flush / reset / get_channel_info
+    Then select it via channel_config:
+        from netrl import NetworkedEnv, NetworkConfig, NS3WifiConfig
 
-    env = NetworkedEnv(base_env, config,
-                       channel_factory=lambda cfg: NS3Channel(cfg, ns3_handle))
+        env = NetworkedEnv(
+            gym.make("CartPole-v1"),
+            NetworkConfig(buffer_size=10),
+            channel_config=NS3WifiConfig(distance_m=15.0, step_duration_ms=2.0),
+        )
+
+    The simulation persists across steps and only resets on env.reset().
 """
 
 from netrl.observation_buffer import ObservationBuffer
@@ -52,8 +54,10 @@ from netrl.network_config import NetworkConfig
 from netrl.comm_channel import CommChannel, GEChannel, PerfectChannel
 from netrl.central_node import CentralNode
 from netrl.networked_env import NetworkedEnv
+from netrl.ns3_wifi_config import NS3WifiConfig
+from netrl.ns3_channel import NS3WifiChannel
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "ObservationBuffer",
@@ -64,4 +68,6 @@ __all__ = [
     "PerfectChannel",
     "CentralNode",
     "NetworkedEnv",
+    "NS3WifiConfig",
+    "NS3WifiChannel",
 ]

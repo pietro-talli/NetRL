@@ -1,0 +1,3 @@
+/home/dianalab/Projects/NetRL/build_ns3/CMakeFiles/ns3_wifi_sim.dir
+/home/dianalab/Projects/NetRL/build_ns3/CMakeFiles/edit_cache.dir
+/home/dianalab/Projects/NetRL/build_ns3/CMakeFiles/rebuild_cache.dir

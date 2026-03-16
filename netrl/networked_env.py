@@ -6,8 +6,7 @@ channel between the RL agent and the environment.
 
 At every step the wrapper:
   1. Steps the underlying environment to get the raw observation.
-  2. Calls the C++ Gilbert-Elliott subroutine (via CentralNode) to
-     simulate transmission to the central node (applies loss + delay).
+  2. Transmits the raw observation through the channel backend (loss + delay).
   3. Flushes the channel: collects any packet due at this step (possibly
      none if the packet was lost or not yet delivered).
   4. Updates the ObservationBuffer with the arrived packet or None.
@@ -28,22 +27,27 @@ The agent sees a sliding window of the last buffer_size delivery slots.
 Slot [-1] is the most recent; slot [0] is oldest.  Slots where no packet
 arrived (loss or not yet delivered) are zero-filled with recv_mask=False.
 
-Plugging in a different channel backend
----------------------------------------
-Pass a custom `channel_factory` callable:
+Selecting the channel backend
+------------------------------
+The `channel_config` parameter selects and configures the backend:
 
+    # Gilbert-Elliott (default) — parameters come from NetworkConfig
+    env = NetworkedEnv(gym.make("CartPole-v1"), network_config)
+
+    # ns-3 802.11a WiFi — build src/ns3_wifi_sim first
+    from netrl import NS3WifiConfig
     env = NetworkedEnv(
-        gym.make("CartPole-v1"), config,
-        channel_factory=PerfectChannel,     # or NS3Channel, etc.
+        gym.make("CartPole-v1"),
+        network_config,
+        channel_config=NS3WifiConfig(distance_m=15.0, step_duration_ms=2.0),
     )
 
-No other change is needed.  The factory must accept a NetworkConfig and
-return a CommChannel instance.
+The ns-3 simulation persists across steps and only resets on env.reset().
 """
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
 import gymnasium as gym
@@ -52,6 +56,8 @@ from gymnasium import spaces
 from netrl.central_node import CentralNode
 from netrl.comm_channel import CommChannel, GEChannel
 from netrl.network_config import NetworkConfig
+from netrl.ns3_wifi_config import NS3WifiConfig
+from netrl.ns3_channel import NS3WifiChannel
 
 
 class NetworkedEnv(gym.Wrapper):
@@ -60,24 +66,33 @@ class NetworkedEnv(gym.Wrapper):
 
     Parameters
     ----------
-    env             : gymnasium.Env
+    env            : gymnasium.Env
         The base environment to wrap.  Must have a Box observation space.
-    config          : NetworkConfig
-        Channel and buffer configuration.  Validated on construction.
-    channel_factory : Callable[[NetworkConfig], CommChannel]
-        Factory that builds the channel backend.  Defaults to GEChannel
-        (C++ Gilbert-Elliott).  Pass PerfectChannel for a baseline or
-        a custom NS3Channel for ns3-backed simulation.
-    node_id         : str
+    config         : NetworkConfig
+        Channel and buffer configuration.  For the Gilbert-Elliott backend
+        this also carries the Markov-chain and loss parameters.  Validated
+        on construction.
+    channel_config : NS3WifiConfig | None, optional
+        Selects and configures the channel backend:
+
+        ``None`` (default)
+            Use the Gilbert-Elliott channel.  All GE parameters are taken
+            from `config` (p_gb, p_bg, loss_good, loss_bad, delay_steps).
+
+        ``NS3WifiConfig(...)``
+            Use the ns-3 802.11a WiFi channel.  The binary
+            ``src/ns3_wifi_sim`` must be built first
+            (``bash src/build_ns3_sim.sh``).
+
+    node_id        : str
         Identifier for this agent's transmission node.  Default "agent_0".
-        Change only if you need a non-default key in multi-agent setups.
     """
 
     def __init__(
         self,
         env: gym.Env,
         config: NetworkConfig,
-        channel_factory: Callable[[NetworkConfig], CommChannel] = GEChannel,
+        channel_config: Optional[NS3WifiConfig] = None,
         node_id: str = "agent_0",
     ) -> None:
         super().__init__(env)
@@ -92,6 +107,18 @@ class NetworkedEnv(gym.Wrapper):
         self._config = config
         self._node_id = node_id
         self._step_count: int = 0
+
+        # Resolve channel factory from channel_config
+        if channel_config is None:
+            channel_factory = GEChannel
+        elif isinstance(channel_config, NS3WifiConfig):
+            _ns3 = channel_config
+            channel_factory = lambda node_cfg: NS3WifiChannel(node_cfg, _ns3)  # noqa: E731
+        else:
+            raise TypeError(
+                f"channel_config must be an NS3WifiConfig or None, "
+                f"got {type(channel_config).__name__}."
+            )
 
         base_space: spaces.Box = env.observation_space
         obs_shape: tuple = base_space.shape
@@ -149,8 +176,8 @@ class NetworkedEnv(gym.Wrapper):
         Sequence per step
         -----------------
         1. env.step(action)           -> raw_obs, reward, term, trunc, info
-        2. central.receive_from(...)  -> C++ transmit (loss + delay)
-        3. central.flush_and_update() -> C++ flush + buffer.add(obs or None)
+        2. central.receive_from(...)  -> transmit through channel
+        3. central.flush_and_update() -> flush + buffer.add(obs or None)
         4. step_count  += 1
         5. buffer.get_padded()        -> (obs_array, recv_mask)
         6. Return Dict observation, reward, flags, augmented info.
@@ -158,35 +185,18 @@ class NetworkedEnv(gym.Wrapper):
         The `info` dict is extended with:
           "channel_info"      : dict from get_channel_info() (state, params…)
           "arrived_this_step" : bool, True if a packet arrived at this step.
-
-        Parameters
-        ----------
-        action : Any  Action compatible with the wrapped env's action_space.
-
-        Returns
-        -------
-        obs        : Dict{"observations": ndarray, "recv_mask": ndarray}
-        reward     : float
-        terminated : bool
-        truncated  : bool
-        info       : dict
         """
         raw_obs, reward, terminated, truncated, info = self.env.step(action)
 
         t = self._step_count
 
-        # Transmit raw observation through the channel (C++ subroutine)
         self._central.receive_from(self._node_id, raw_obs, t)
-
-        # Flush channel: collect any packet(s) due at step t, update buffer
         arrived_map = self._central.flush_and_update(t)
 
         self._step_count += 1
 
-        # Build Dict observation from padded buffer
         obs_buf, recv_mask = self._central.get_buffer(self._node_id)
 
-        # Augment info with channel diagnostics
         info["channel_info"] = self._central.get_channel_info(self._node_id)
         info["arrived_this_step"] = arrived_map[self._node_id] is not None
 
