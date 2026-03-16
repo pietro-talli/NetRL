@@ -11,9 +11,12 @@
 *.sln.docstates
 *.env
 
-*.so
+*.cpython-*
 
 ns3_wifi_sim
+
+build/
+build_ns3/
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)
