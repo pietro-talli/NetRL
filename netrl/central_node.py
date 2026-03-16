@@ -16,8 +16,8 @@ import copy
 from typing import Callable, Dict, List, Optional, Tuple
 import numpy as np
 
-from netrl.comm_channel import CommChannel
-from netrl.network_config import NetworkConfig
+from netrl.channels.comm_channel import CommChannel
+from netrl.channels.network_config import NetworkConfig
 from netrl.observation_buffer import ObservationBuffer
 
 

@@ -50,12 +50,12 @@ ns3 WiFi backend (realistic channel)
 
 from netrl.observation_buffer import ObservationBuffer
 from netrl.node import Node
-from netrl.network_config import NetworkConfig
-from netrl.comm_channel import CommChannel, GEChannel, PerfectChannel
+from netrl.channels.network_config import NetworkConfig
+from netrl.channels.comm_channel import CommChannel, GEChannel, PerfectChannel
 from netrl.central_node import CentralNode
 from netrl.networked_env import NetworkedEnv
-from netrl.ns3_wifi_config import NS3WifiConfig
-from netrl.ns3_channel import NS3WifiChannel
+from netrl.channels.ns3_wifi_config import NS3WifiConfig
+from netrl.channels.ns3_channel import NS3WifiChannel
 
 __version__ = "0.2.0"
 

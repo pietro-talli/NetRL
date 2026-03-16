@@ -71,14 +71,14 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from netrl.comm_channel import CommChannel
-from netrl.network_config import NetworkConfig
-from netrl.ns3_wifi_config import NS3WifiConfig
+from netrl.channels.comm_channel import CommChannel
+from netrl.channels.network_config import NetworkConfig
+from netrl.channels.ns3_wifi_config import NS3WifiConfig
 
 # Default location of the compiled ns-3 simulation binary relative to
 # this file: <project_root>/src/ns3_wifi_sim
 _DEFAULT_SIM_BINARY = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "src", "ns3_wifi_sim")
+    os.path.join(os.path.dirname(__file__), "../..", "src", "ns3_wifi_sim")
 )
 
 

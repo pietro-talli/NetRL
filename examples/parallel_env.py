@@ -1,5 +1,5 @@
 from netrl import NetworkedEnv, NetworkConfig
-from netrl.ns3_wifi_config import NS3WifiConfig
+from netrl.channels.ns3_wifi_config import NS3WifiConfig
 import gymnasium as gym
 
 from gymnasium.vector import AsyncVectorEnv

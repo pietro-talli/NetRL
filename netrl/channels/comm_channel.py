@@ -18,7 +18,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from netrl.network_config import NetworkConfig
+from netrl.channels.network_config import NetworkConfig
 
 
 class CommChannel(ABC):

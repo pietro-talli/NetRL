@@ -54,10 +54,10 @@ import gymnasium as gym
 from gymnasium import spaces
 
 from netrl.central_node import CentralNode
-from netrl.comm_channel import CommChannel, GEChannel
-from netrl.network_config import NetworkConfig
-from netrl.ns3_wifi_config import NS3WifiConfig
-from netrl.ns3_channel import NS3WifiChannel
+from netrl.channels.comm_channel import CommChannel, GEChannel
+from netrl.channels.network_config import NetworkConfig
+from netrl.channels.ns3_wifi_config import NS3WifiConfig
+from netrl.channels.ns3_channel import NS3WifiChannel
 
 
 class NetworkedEnv(gym.Wrapper):
