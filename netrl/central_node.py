@@ -18,7 +18,7 @@ import numpy as np
 
 from netrl.channels.comm_channel import CommChannel
 from netrl.channels.network_config import NetworkConfig
-from netrl.observation_buffer import ObservationBuffer
+from netrl.utils.observation_buffer import ObservationBuffer
 
 
 class CentralNode:

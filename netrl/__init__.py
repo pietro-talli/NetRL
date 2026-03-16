@@ -48,7 +48,7 @@ ns3 WiFi backend (realistic channel)
     The simulation persists across steps and only resets on env.reset().
 """
 
-from netrl.observation_buffer import ObservationBuffer
+from netrl.utils.observation_buffer import ObservationBuffer
 from netrl.channels.network_config import NetworkConfig
 from netrl.channels.comm_channel import CommChannel, GEChannel, PerfectChannel
 from netrl.central_node import CentralNode

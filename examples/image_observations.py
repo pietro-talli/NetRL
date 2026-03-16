@@ -1,7 +1,7 @@
 from netrl import NetworkedEnv, NetworkConfig
 from netrl.channels.ns3_wifi_config import NS3WifiConfig
 import gymnasium as gym
-from netrl.image_env_wrapper import ImageEnvWrapper
+from netrl.utils.image_env_wrapper import ImageEnvWrapper
 import numpy as np
 
 env = gym.make("CartPole-v1", render_mode = "rgb_array")
