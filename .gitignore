@@ -11,6 +11,8 @@
 *.sln.docstates
 *.env
 
+*.so
+
 ns3_wifi_sim
 
 
