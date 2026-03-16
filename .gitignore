@@ -19,6 +19,8 @@ build/
 build_ns3/
 *.egg-info/
 
+.vscode/
+
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
