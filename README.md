@@ -2,12 +2,13 @@
 
 NetRL wraps any [Gymnasium](https://gymnasium.farama.org/) environment and simulates a **noisy communication channel** between the agent and the environment. At every `step()`, the raw observation is transmitted through a configurable channel backend (loss, delay, retransmissions). The agent receives a **sliding-window buffer** of past observations together with a boolean mask indicating which slots actually arrived.
 
-Two channel backends are available:
+Three channel backends are available:
 
 | Backend | Model | Config class |
 |---|---|---|
 | **Gilbert-Elliott** (default) | Two-state Markov chain with configurable loss per state and fixed delay | `NetworkConfig` |
 | **ns-3 802.11a WiFi** | Full MAC/PHY simulation via ns-3 — CSMA/CA, retransmissions, path-loss | `NS3WifiConfig` |
+| **ns-3 5G mmWave** | Full EPC/NR simulation via ns-3-mmwave — 3GPP TR 38.901 path-loss, HARQ, RLC | `NS3MmWaveConfig` |
 
 ---
 
@@ -17,33 +18,44 @@ Two channel backends are available:
 2. [Installation](#installation)
    - [Python package and GE channel (pybind11)](#1-python-package-and-ge-channel-pybind11)
    - [ns-3 WiFi binary](#2-ns-3-wifi-binary)
+   - [ns-3 5G mmWave binary](#3-ns-3-5g-mmwave-binary)
 3. [Quick Start](#quick-start)
    - [Gilbert-Elliott channel](#gilbert-elliott-channel)
    - [ns-3 WiFi channel](#ns-3-wifi-channel)
+   - [ns-3 5G mmWave channel](#ns-3-5g-mmwave-channel)
 4. [Observation Space](#observation-space)
 5. [Configuration Reference](#configuration-reference)
    - [NetworkConfig](#networkconfig)
    - [NS3WifiConfig](#ns3wificonfig)
+   - [NS3MmWaveConfig](#ns3mmwaveconfig)
 6. [NetworkedEnv API](#networkedenv-api)
 7. [Per-step Packet Size](#per-step-packet-size)
-8. [Building the ns-3 Binary](#building-the-ns-3-binary)
+8. [Building the ns-3 WiFi Binary](#building-the-ns-3-wifi-binary)
    - [Prerequisites](#prerequisites)
    - [Build script](#build-script)
    - [Build options](#build-options)
    - [Manual compilation](#manual-compilation)
    - [Verification](#verification)
-9. [Advanced: CentralNode and Custom Channels](#advanced-centralnode-and-custom-channels)
-10. [Troubleshooting](#troubleshooting)
+9. [Building the ns-3 5G mmWave Binary](#building-the-ns-3-5g-mmwave-binary)
+   - [Prerequisites (mmWave)](#prerequisites-mmwave)
+   - [Build script (mmWave)](#build-script-mmwave)
+   - [Build options (mmWave)](#build-options-mmwave)
+   - [Manual compilation (mmWave)](#manual-compilation-mmwave)
+   - [Verification (mmWave)](#verification-mmwave)
+10. [Advanced: CentralNode and Custom Channels](#advanced-centralnode-and-custom-channels)
+11. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Requirements
 
 - Python ≥ 3.10
-- GCC ≥ 10 or Clang ≥ 11 (C++17 for the pybind11 extension; C++20 for the ns-3 binary when using pip-installed ns-3 ≥ 3.43)
+- GCC ≥ 10 or Clang ≥ 11
+  - C++17 for the pybind11 extension and the ns-3 WiFi binary (pip ns-3 ≥ 3.43 only)
+  - **C++20** for the ns-3 mmWave binary (ns-3-mmwave 3.42 uses `std::remove_cvref_t`)
 - One of:
-  - `pip install ns3` (ns-3 ≥ 3.43, headers + shared libs, C++20)
-  - A compiled ns-3-mmwave source build (ns-3 3.42, C++17)
+  - `pip install ns3` (ns-3 ≥ 3.43, headers + shared libs) — for the WiFi backend
+  - A compiled **ns-3-mmwave** source build at `/path/to/ns3-mmwave/build` (ns-3 3.42) — required for the 5G mmWave backend
 
 ---
 
@@ -74,7 +86,17 @@ The ns-3 backend runs as a **persistent subprocess**. Compile it once before use
 bash src/build_ns3_sim.sh
 ```
 
-The script auto-detects your ns-3 installation, compiles `src/ns3_wifi_sim.cc`, and writes the binary to `src/ns3_wifi_sim`. See [Building the ns-3 Binary](#building-the-ns-3-binary) for full details.
+The script auto-detects your ns-3 installation, compiles `src/ns3_wifi_sim.cc`, and writes the binary to `src/ns3_wifi_sim`. See [Building the ns-3 WiFi Binary](#building-the-ns-3-wifi-binary) for full details.
+
+### 3. ns-3 5G mmWave binary
+
+The mmWave backend requires a separate binary built against [ns-3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave) (ns-3 3.42). Compile it once before use:
+
+```bash
+bash src/build_ns3_mmwave_sim.sh
+```
+
+The script expects ns-3-mmwave to be built at `/home/dianalab/Projects/ns3-mmwave/build` (edit the `NS3_MMWAVE_BUILD` variable at the top of the script to change the path). See [Building the ns-3 5G mmWave Binary](#building-the-ns-3-5g-mmwave-binary) for full details.
 
 ---
 
@@ -140,6 +162,38 @@ for _ in range(1000):
 
 > The ns-3 simulation is **persistent across steps** — MAC-layer state (backoff counters, retry timers) carries over between steps, giving temporally correlated, realistic channel behaviour. The simulation is only rebuilt on `env.reset()`.
 
+### ns-3 5G mmWave channel
+
+```python
+import gymnasium as gym
+from netrl import NetworkedEnv, NetworkConfig, NS3MmWaveConfig
+
+env = NetworkedEnv(
+    gym.make("CartPole-v1"),
+    NetworkConfig(buffer_size=10),
+    channel_config=NS3MmWaveConfig(
+        distance_m=50.0,           # UE-to-eNB distance
+        frequency_ghz=28.0,        # 28 GHz (n257/n261 band)
+        bandwidth_ghz=0.2,         # 200 MHz component carrier
+        tx_power_dbm=23.0,         # UE transmit power
+        scenario="UMa",            # Urban Macro (3GPP TR 38.901)
+        harq_enabled=True,
+        step_duration_ms=1.0,
+        packet_size_bytes=64,
+    ),
+)
+
+obs, info = env.reset()
+
+for _ in range(1000):
+    obs, reward, term, trunc, info = env.step(env.action_space.sample())
+    print(info["channel_info"]["state"])   # "NS3_MMWAVE"
+    if term or trunc:
+        obs, info = env.reset()
+```
+
+> The mmWave simulation models a full 5G EPC stack (UE → eNB → SGW/PGW → remote host) with 3GPP TR 38.901 path-loss, HARQ retransmissions, and configurable RLC mode. The first `reset()` call waits up to 60 s for the EPC to initialise — subsequent resets are faster.
+
 ---
 
 ## Observation Space
@@ -169,7 +223,9 @@ The `info` dict returned by `step()` is augmented with:
 
 **GE `channel_info` keys:** `state` (`"GOOD"` / `"BAD"`), `pending_count`
 
-**ns-3 `channel_info` keys:** `state` (`"NS3_WIFI"`), `pending_count`, `arrived_buffered`, `distance_m`, `step_duration_ms`, `tx_power_dbm`, `loss_exponent`, `max_retries`
+**ns-3 WiFi `channel_info` keys:** `state` (`"NS3_WIFI"`), `pending_count`, `arrived_buffered`, `distance_m`, `step_duration_ms`, `tx_power_dbm`, `loss_exponent`, `max_retries`
+
+**ns-3 mmWave `channel_info` keys:** `state` (`"NS3_MMWAVE"`), `pending_count`, `arrived_buffered`, `distance_m`, `frequency_ghz`, `bandwidth_ghz`, `tx_power_dbm`, `enb_tx_power_dbm`, `noise_figure_db`, `scenario`, `harq_enabled`, `rlc_am_enabled`, `step_duration_ms`
 
 ---
 
@@ -205,7 +261,7 @@ config = NetworkConfig(
 
 Steady-state probability of being in the Bad state: `p_gb / (p_gb + p_bg)`
 
-> When using the ns-3 backend, only `buffer_size` and `seed` from `NetworkConfig` are used. The GE-specific fields (`p_gb`, `p_bg`, `loss_good`, `loss_bad`, `delay_steps`) are ignored — WiFi physics govern loss and delay.
+> When using the ns-3 WiFi or 5G mmWave backend, only `buffer_size` and `seed` from `NetworkConfig` are used. The GE-specific fields (`p_gb`, `p_bg`, `loss_good`, `loss_bad`, `delay_steps`) are ignored — the ns-3 physical simulation governs loss and delay.
 
 ### NS3WifiConfig
 
@@ -245,6 +301,66 @@ ns3_config = NS3WifiConfig(
 | 5–10 ms | Several retransmissions fit within a step. Most packets arrive this step or are dropped. Low delay variance. |
 | 20+ ms | Very coarse. Nearly all packets arrive in the same step or drop. Minimal delay variation. |
 
+### NS3MmWaveConfig
+
+Controls the ns-3 5G mmWave EPC simulation. Requires the `ns3_mmwave_sim` binary (see [Building the ns-3 5G mmWave Binary](#building-the-ns-3-5g-mmwave-binary)).
+
+```python
+from netrl import NS3MmWaveConfig
+
+ns3_mmwave_config = NS3MmWaveConfig(
+    distance_m          = 50.0,    # UE-to-eNB distance in metres
+    frequency_ghz       = 28.0,    # Carrier frequency (GHz). Common: 28, 39
+    bandwidth_ghz       = 0.2,     # Component carrier bandwidth (GHz)
+    tx_power_dbm        = 23.0,    # UE transmit power (dBm)
+    enb_tx_power_dbm    = 30.0,    # eNB transmit power (dBm)
+    noise_figure_db     = 9.0,     # UE receiver noise figure (dB)
+    enb_noise_figure_db = 5.0,     # eNB receiver noise figure (dB)
+    scenario            = "UMa",   # 3GPP TR 38.901 propagation scenario
+    harq_enabled        = True,    # Hybrid ARQ with incremental redundancy
+    rlc_am_enabled      = False,   # RLC Acknowledged Mode (adds extra delay)
+    packet_size_bytes   = 64,      # Default UDP payload in bytes (min 4)
+    step_duration_ms    = 1.0,     # Width of one env step in ns-3 sim time (ms)
+    max_pending_steps   = 500,     # Steps before unacked packet is declared lost
+    sim_binary          = "",      # Path to binary; "" = auto-detect
+)
+```
+
+| Field | Default | Description |
+|---|---|---|
+| `distance_m` | `50.0` | UE-to-eNB Euclidean distance in metres. At 28 GHz (UMa), link failure begins ~200 m. |
+| `frequency_ghz` | `28.0` | Carrier frequency in GHz. Common 5G mmWave bands: 26.5–29.5 (n257/n261), 37–40 (n260). |
+| `bandwidth_ghz` | `0.2` | Component carrier bandwidth in GHz (200 MHz). Typical NR: 0.05–0.4 GHz. |
+| `tx_power_dbm` | `23.0` | UE transmit power in dBm. Typical 5G mmWave UE: 23 dBm. |
+| `enb_tx_power_dbm` | `30.0` | eNB (gNB) transmit power in dBm. |
+| `noise_figure_db` | `9.0` | UE receiver noise figure in dB. Higher → worse SNR. |
+| `enb_noise_figure_db` | `5.0` | eNB receiver noise figure in dB. |
+| `scenario` | `"UMa"` | 3GPP TR 38.901 propagation scenario (see table below). |
+| `harq_enabled` | `True` | Enable Hybrid ARQ. Retransmissions combine for improved decoding; adds 1–5 ms per round. |
+| `rlc_am_enabled` | `False` | Enable RLC Acknowledged Mode. Higher reliability, additional delay. Disable for latency-sensitive RL. |
+| `packet_size_bytes` | `64` | Default probe packet payload in bytes. |
+| `step_duration_ms` | `1.0` | ns-3 simulation time per env step (ms). |
+| `max_pending_steps` | `500` | Python-side expiry: packets older than this many steps are discarded as lost. |
+| `sim_binary` | `""` | Absolute path to `ns3_mmwave_sim`. Auto-detected as `<project_root>/src/ns3_mmwave_sim` when empty. |
+
+**Propagation scenarios (`scenario`):**
+
+| Value | Description |
+|---|---|
+| `"RMa"` | Rural Macro — low density, long range |
+| `"UMa"` | Urban Macro — outdoor city (default) |
+| `"UMi-StreetCanyon"` | Urban Micro — dense urban, street level |
+| `"InH-OfficeMixed"` | Indoor Hotspot — mixed LOS/NLOS office |
+| `"InH-OfficeOpen"` | Indoor Hotspot — open-plan office |
+
+**Choosing `step_duration_ms` for mmWave:**
+
+| Value | Effect |
+|---|---|
+| 0.5–1 ms | ~1 TTI; single HARQ round per step; realistic per-packet delay variation |
+| 2–5 ms | 2–5 HARQ rounds fit per step; most packets arrive same step or are dropped |
+| 10+ ms | Very coarse; near-zero delay variation |
+
 ---
 
 ## NetworkedEnv API
@@ -256,7 +372,7 @@ class NetworkedEnv(gymnasium.Wrapper):
         self,
         env: gymnasium.Env,
         config: NetworkConfig,
-        channel_config: Optional[NS3WifiConfig] = None,
+        channel_config: Optional[Union[NS3WifiConfig, NS3MmWaveConfig]] = None,
         node_id: str = "agent_0",
     )
 ```
@@ -265,7 +381,7 @@ class NetworkedEnv(gymnasium.Wrapper):
 |---|---|
 | `env` | Base gymnasium environment. Must have a `Box` observation space. |
 | `config` | `NetworkConfig`. Controls buffer size and GE channel parameters. |
-| `channel_config` | `None` → GE channel. `NS3WifiConfig(...)` → ns-3 WiFi. |
+| `channel_config` | `None` → GE channel. `NS3WifiConfig(...)` → ns-3 WiFi. `NS3MmWaveConfig(...)` → ns-3 5G mmWave. |
 | `node_id` | Node identifier string. Only change for non-default multi-agent setups. |
 
 ```python
@@ -285,16 +401,16 @@ env.central_node  # CentralNode — direct access for advanced use
 
 ## Per-step Packet Size
 
-The ns-3 backend models full 802.11a MAC, so packet size directly affects **transmission time** and **drop probability**. You can override it per step:
+Both ns-3 backends model full MAC/PHY stacks, so packet size directly affects **transmission time** and **drop probability**. You can override it per step:
 
 ```python
 # Small control packet
 obs, *_ = env.step(action, packet_size=64)
 
-# Large observation payload — longer TX time, higher collision chance
+# Large observation payload — longer TX time, higher collision/error probability
 obs, *_ = env.step(action, packet_size=2048)
 
-# Use the default from NS3WifiConfig.packet_size_bytes
+# Use the default from NS3WifiConfig.packet_size_bytes / NS3MmWaveConfig.packet_size_bytes
 obs, *_ = env.step(action)
 ```
 
@@ -302,7 +418,7 @@ obs, *_ = env.step(action)
 
 ---
 
-## Building the ns-3 Binary
+## Building the ns-3 WiFi Binary
 
 ### Prerequisites
 
@@ -413,6 +529,97 @@ printf 'QUIT\n' | src/ns3_wifi_sim
 
 ---
 
+## Building the ns-3 5G mmWave Binary
+
+The mmWave binary (`ns3_mmwave_sim`) requires **ns-3-mmwave 3.42** — a fork of ns-3 with a full 5G NR/EPC sub-6/mmWave stack. It cannot use the pip-installed ns-3 package.
+
+### Prerequisites (mmWave)
+
+1. **GCC ≥ 10** with C++20 support (`g++ --version`)
+2. A built copy of [ns-3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave) at `ns3-mmwave/build`:
+
+```bash
+git clone https://github.com/nyuwireless-unipd/ns3-mmwave.git
+cd ns3-mmwave
+./waf configure --build-profile=optimized --disable-python
+./waf build
+```
+
+The build script looks for the ns-3-mmwave tree at `/home/dianalab/Projects/ns3-mmwave`. Edit the `NS3_MMWAVE_BUILD` variable at the top of `src/build_ns3_mmwave_sim.sh` if your path differs.
+
+Required ns-3-mmwave modules (all built by default): `core`, `network`, `internet`, `point-to-point`, `mobility`, `spectrum`, `mmwave`.
+
+### Build script (mmWave)
+
+```bash
+bash src/build_ns3_mmwave_sim.sh
+```
+
+The script:
+1. Checks that `${NS3_MMWAVE_BUILD}/lib/libns3.42-mmwave-default.so` exists
+2. Compiles `src/ns3_mmwave_sim.cc` with `-std=c++20` and all required include/library paths
+3. Embeds the library search path with `-Wl,-rpath`
+4. Runs a smoke test (`printf 'QUIT\n' | src/ns3_mmwave_sim`)
+5. Places the output at `src/ns3_mmwave_sim`
+
+Expected output:
+
+```
+=== NetRL ns3 mmWave simulation build ===
+  Source : .../src/ns3_mmwave_sim.cc
+  ns3    : ns3-mmwave 3.42 at .../ns3-mmwave/build
+
+Compiling with -std=c++20 -O2 ...
+Built: .../src/ns3_mmwave_sim
+
+Smoke test (QUIT) ...
+Smoke test PASSED
+```
+
+### Build options (mmWave)
+
+```bash
+bash src/build_ns3_mmwave_sim.sh            # Release build (-O2, default)
+bash src/build_ns3_mmwave_sim.sh --release  # Explicit release
+bash src/build_ns3_mmwave_sim.sh --debug    # Debug build (-O0 -g)
+```
+
+### Manual compilation (mmWave)
+
+```bash
+NS3_BUILD=/path/to/ns3-mmwave/build
+
+g++ -std=c++20 -O2 \
+    -I${NS3_BUILD}/include \
+    -L${NS3_BUILD}/lib \
+    -Wl,-rpath,${NS3_BUILD}/lib \
+    src/ns3_mmwave_sim.cc \
+    -lns3.42-core-default \
+    -lns3.42-network-default \
+    -lns3.42-internet-default \
+    -lns3.42-point-to-point-default \
+    -lns3.42-mobility-default \
+    -lns3.42-spectrum-default \
+    -lns3.42-mmwave-default \
+    -o src/ns3_mmwave_sim
+```
+
+> Verify the exact library filenames with:
+> ```bash
+> ls ${NS3_BUILD}/lib/libns3.42-mmwave*
+> ```
+
+### Verification (mmWave)
+
+```bash
+printf 'QUIT\n' | src/ns3_mmwave_sim
+# Expected single line of output: READY
+```
+
+> **Note:** The first `reset()` call after process start takes up to 60 s on slow machines while ns-3 loads shared libraries and the EPC performs its 500 ms warm-up. Subsequent resets are faster.
+
+---
+
 ## Advanced: CentralNode and Custom Channels
 
 `CentralNode` is the underlying aggregator; `NetworkedEnv` creates one internally. You can use it directly for **multi-agent** scenarios or custom wiring:
@@ -505,6 +712,25 @@ The ns-3 binary has not been compiled. Run:
 ```bash
 bash src/build_ns3_sim.sh
 ```
+
+**`RuntimeError: ns3_mmwave_sim binary not found`**
+
+The mmWave binary has not been compiled. Run:
+```bash
+bash src/build_ns3_mmwave_sim.sh
+```
+
+If the script cannot find the ns-3-mmwave build tree, edit `NS3_MMWAVE_BUILD` at the top of the script.
+
+**`RuntimeError: NS3MmWaveChannel: subprocess stdout closed`** (crash, return code -6)
+
+The `ns3_mmwave_sim` process aborted. Common causes:
+- Wrong attribute names (ns-3-mmwave version mismatch) — rebuild with the correct source
+- Binary was compiled with `-std=c++17` — recompile with `-std=c++20`
+
+**First `reset()` takes a long time (mmWave)**
+
+The 5G EPC performs a 500 ms simulated warm-up during which the UE attaches and a default bearer is established. On the first call, ns-3 also loads mmWave shared libraries — expect up to 60 s total. Subsequent resets are significantly faster.
 
 **Build script fails with a `glib-2.0` or CMake path error**
 
