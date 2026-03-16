@@ -168,10 +168,19 @@ class NetworkedEnv(gym.Wrapper):
         return {"observations": obs_buf, "recv_mask": recv_mask}, info
 
     def step(
-        self, action: Any
+        self, action: Any, packet_size: Optional[int] = None
     ) -> Tuple[Dict[str, np.ndarray], float, bool, bool, dict]:
         """
         Step the underlying environment and run the channel simulation.
+
+        Parameters
+        ----------
+        action      : Any           Action compatible with the wrapped env.
+        packet_size : int | None    Payload bytes to use for the packet
+                                    transmitted this step.  None means use
+                                    the channel's own default (NS3WifiConfig.
+                                    packet_size_bytes for the ns-3 backend,
+                                    ignored for GE / Perfect channels).
 
         Sequence per step
         -----------------
@@ -190,7 +199,7 @@ class NetworkedEnv(gym.Wrapper):
 
         t = self._step_count
 
-        self._central.receive_from(self._node_id, raw_obs, t)
+        self._central.receive_from(self._node_id, raw_obs, t, packet_size)
         arrived_map = self._central.flush_and_update(t)
 
         self._step_count += 1

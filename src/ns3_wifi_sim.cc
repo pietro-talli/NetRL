@@ -17,7 +17,7 @@
  * Protocol (stdin / stdout, line-oriented)
  * -----------------------------------------
  * Python → program:
- *   TRANSMIT <step_id>     schedule a probe packet send for step step_id
+ *   TRANSMIT <step_id> <pkt_size>  schedule a probe packet send for step step_id
  *   FLUSH    <step_id>     advance sim to end of step_id, report arrivals
  *   RESET                  destroy & rebuild simulation (sim time → 0)
  *   QUIT                   graceful exit
@@ -123,7 +123,7 @@ static void ReceivePacket(Ptr<Socket> socket)
 // ---------------------------------------------------------------------------
 // Scheduled send — fired by the simulator at the right sim time
 // ---------------------------------------------------------------------------
-static void DoSend(uint32_t step_id)
+static void DoSend(uint32_t step_id, int pkt_size)
 {
     // Build 4-byte big-endian payload carrying the step_id
     uint8_t buf[4];
@@ -132,8 +132,8 @@ static void DoSend(uint32_t step_id)
     buf[2] = static_cast<uint8_t>((step_id >>  8) & 0xFF);
     buf[3] = static_cast<uint8_t>( step_id        & 0xFF);
 
-    // Pad to requested packet size
-    std::vector<uint8_t> payload(std::max(g_pktSize, 4), 0);
+    // Pad to the per-packet requested size (minimum 4 bytes for the step_id)
+    std::vector<uint8_t> payload(std::max(pkt_size, 4), 0);
     std::copy(buf, buf + 4, payload.begin());
 
     Ptr<Packet> pkt = Create<Packet>(payload.data(),
@@ -279,10 +279,11 @@ int main(int argc, char* argv[])
         std::string        command;
         iss >> command;
 
-        // ---- TRANSMIT <step_id> ----------------------------------------
+        // ---- TRANSMIT <step_id> <pkt_size> --------------------------------
         if (command == "TRANSMIT") {
             uint32_t step_id = 0;
-            iss >> step_id;
+            int      pkt_size = g_pktSize;
+            iss >> step_id >> pkt_size;
 
             // Compute absolute ns3 send time: 1% into the env step window.
             // Step t occupies [g_simStartMs + t*step_ms,
@@ -292,11 +293,11 @@ int main(int argc, char* argv[])
             double delayMs   = sendAbsMs - nowMs;
 
             if (delayMs > 0.0) {
-                Simulator::Schedule(MilliSeconds(delayMs), &DoSend, step_id);
+                Simulator::Schedule(MilliSeconds(delayMs), &DoSend, step_id, pkt_size);
             } else {
                 // Already past the absolute time (e.g. retransmit of old step)
                 // Schedule with the smallest positive delay
-                Simulator::Schedule(NanoSeconds(1), &DoSend, step_id);
+                Simulator::Schedule(NanoSeconds(1), &DoSend, step_id, pkt_size);
             }
 
             std::cout << "OK" << std::endl;

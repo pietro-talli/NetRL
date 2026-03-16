@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import copy
 from typing import Callable, Dict, List, Optional, Tuple
-
 import numpy as np
 
 from netrl.comm_channel import CommChannel
@@ -71,19 +70,22 @@ class CentralNode:
     # Per-step API (called by NetworkedEnv.step())
     # -----------------------------------------------------------------------
 
-    def receive_from(self, node_id: str, obs: np.ndarray, step: int) -> None:
+    def receive_from(self, node_id: str, obs: np.ndarray, step: int,
+                     packet_size: Optional[int] = None) -> None:
         """
         Transmit `obs` from `node_id` through its channel.
 
         Parameters
         ----------
-        node_id : str         Must match one of the ids given at construction.
-        obs     : np.ndarray  Raw local observation to be transmitted.
-        step    : int         Current integer step counter.
+        node_id     : str          Must match one of the ids given at construction.
+        obs         : np.ndarray   Raw local observation to be transmitted.
+        step        : int          Current integer step counter.
+        packet_size : int | None   Payload bytes for this packet.  None means
+                                   use the channel's own default.
         """
         if node_id not in self._channels:
             raise KeyError(f"Unknown node_id '{node_id}'")
-        self._channels[node_id].transmit(obs, step)
+        self._channels[node_id].transmit(obs, step, packet_size)
 
     def flush_and_update(self, step: int) -> Dict[str, Optional[np.ndarray]]:
         """

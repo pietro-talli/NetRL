@@ -14,7 +14,7 @@ methods, then pass `channel_factory=YourChannel` to NetworkedEnv or CentralNode.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -42,7 +42,8 @@ class CommChannel(ABC):
     """
 
     @abstractmethod
-    def transmit(self, obs: np.ndarray, step: int) -> None:
+    def transmit(self, obs: np.ndarray, step: int,
+                 packet_size: Optional[int] = None) -> None:
         """
         Simulate transmission of `obs` at integer step `step`.
 
@@ -51,8 +52,12 @@ class CommChannel(ABC):
 
         Parameters
         ----------
-        obs  : np.ndarray  Raw observation from the wrapped env.
-        step : int         Current integer step counter (0-indexed).
+        obs         : np.ndarray  Raw observation from the wrapped env.
+        step        : int         Current integer step counter (0-indexed).
+        packet_size : int | None  Payload size in bytes for this packet.
+                                  None means use the channel's default.
+                                  Channels that do not model packet-size
+                                  effects (GE, Perfect) silently ignore it.
         """
 
     @abstractmethod
@@ -126,8 +131,9 @@ class GEChannel(CommChannel):
             seed=config.seed,
         )
 
-    def transmit(self, obs: np.ndarray, step: int) -> None:
-        # Ensure the array is float64 and C-contiguous before handing to C++.
+    def transmit(self, obs: np.ndarray, step: int,
+                 packet_size: Optional[int] = None) -> None:
+        # packet_size has no effect on the GE channel model; ignored.
         self._impl.transmit(np.ascontiguousarray(obs, dtype=np.float64), step)
 
     def flush(self, step: int) -> List[Tuple[int, np.ndarray]]:
@@ -156,7 +162,9 @@ class PerfectChannel(CommChannel):
         # with channel_factory(config) call signature.
         self._pending: List[Tuple[int, np.ndarray]] = []
 
-    def transmit(self, obs: np.ndarray, step: int) -> None:
+    def transmit(self, obs: np.ndarray, step: int,
+                 packet_size: Optional[int] = None) -> None:
+        # packet_size has no effect on the perfect channel; ignored.
         self._pending.append((step, obs.copy()))
 
     def flush(self, step: int) -> List[Tuple[int, np.ndarray]]:

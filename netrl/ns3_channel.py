@@ -10,7 +10,7 @@ The channel spawns a single long-lived child process (src/ns3_wifi_sim)
 that owns the full ns-3 event loop.  Python and the subprocess communicate
 over stdin/stdout using a line-oriented text protocol:
 
-    TRANSMIT <step_id>  →  schedule a probe packet for env step step_id
+    TRANSMIT <step_id> <size>  →  schedule a probe packet for env step step_id
     FLUSH    <step_id>  →  advance ns-3 to end of step_id, report arrivals
     RESET               →  restart the ns-3 simulation (sim time → 0)
     QUIT                →  clean shutdown
@@ -125,7 +125,8 @@ class NS3WifiChannel(CommChannel):
     # CommChannel interface
     # -----------------------------------------------------------------------
 
-    def transmit(self, obs: np.ndarray, step: int) -> None:
+    def transmit(self, obs: np.ndarray, step: int,
+                 packet_size: Optional[int] = None) -> None:
         """
         Instruct ns-3 to simulate sending the observation at env step `step`.
 
@@ -136,11 +137,14 @@ class NS3WifiChannel(CommChannel):
 
         Parameters
         ----------
-        obs  : np.ndarray  Raw observation from the wrapped env.
-        step : int         Current integer step counter (0-indexed).
+        obs         : np.ndarray  Raw observation from the wrapped env.
+        step        : int         Current integer step counter (0-indexed).
+        packet_size : int | None  Payload size in bytes.  None uses the
+                                  default from NS3WifiConfig.packet_size_bytes.
         """
+        size = packet_size if packet_size is not None else self._ns3_cfg.packet_size_bytes
         self._pending[step] = (obs.copy(), step)
-        self._send_command(f"TRANSMIT {step}")
+        self._send_command(f"TRANSMIT {step} {size}")
         resp = self._read_line()
         if resp != "OK":
             raise RuntimeError(
