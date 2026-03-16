@@ -1,7 +1,0 @@
-gymnasium>=0.29
-numpy>=1.24
-pybind11>=2.11
-
-[dev]
-pytest>=7.0
-matplotlib>=3.7
