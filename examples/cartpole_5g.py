@@ -26,13 +26,13 @@ print(info["arrived_this_step"])            # True / False
 import time
 start_time = time.time()
 
-for i in range(100):
+for i in range(1000):
     obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample(), 
                                                   packet_size=256)
     if term or trunc:
         env.reset()
 
-print(f"FPS: {100 / (time.time() - start_time):.2f}")
+print(f"FPS: {1000 / (time.time() - start_time):.2f}")
 
 print(obs["recv_mask"])
 print(obs["observations"])
