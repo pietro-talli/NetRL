@@ -58,6 +58,8 @@ from netrl.channels.comm_channel import CommChannel, GEChannel
 from netrl.channels.network_config import NetworkConfig
 from netrl.channels.ns3_wifi_config import NS3WifiConfig
 from netrl.channels.ns3_channel import NS3WifiChannel
+from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
+from netrl.channels.ns3_mmwave_channel import NS3MmWaveChannel
 
 
 class NetworkedEnv(gym.Wrapper):
@@ -72,7 +74,7 @@ class NetworkedEnv(gym.Wrapper):
         Channel and buffer configuration.  For the Gilbert-Elliott backend
         this also carries the Markov-chain and loss parameters.  Validated
         on construction.
-    channel_config : NS3WifiConfig | None, optional
+    channel_config : NS3WifiConfig | NS3MmWaveConfig | None, optional
         Selects and configures the channel backend:
 
         ``None`` (default)
@@ -84,6 +86,11 @@ class NetworkedEnv(gym.Wrapper):
             ``src/ns3_wifi_sim`` must be built first
             (``bash src/build_ns3_sim.sh``).
 
+        ``NS3MmWaveConfig(...)``
+            Use the ns-3 5G mmWave EPC channel.  The binary
+            ``src/ns3_mmwave_sim`` must be built first
+            (``bash src/build_ns3_mmwave_sim.sh``).
+
     node_id        : str
         Identifier for this agent's transmission node.  Default "agent_0".
     """
@@ -92,7 +99,7 @@ class NetworkedEnv(gym.Wrapper):
         self,
         env: gym.Env,
         config: NetworkConfig,
-        channel_config: Optional[NS3WifiConfig] = None,
+        channel_config: Optional[Union[NS3WifiConfig, NS3MmWaveConfig]] = None,
         node_id: str = "agent_0",
     ) -> None:
         super().__init__(env)
@@ -114,9 +121,12 @@ class NetworkedEnv(gym.Wrapper):
         elif isinstance(channel_config, NS3WifiConfig):
             _ns3 = channel_config
             channel_factory = lambda node_cfg: NS3WifiChannel(node_cfg, _ns3)  # noqa: E731
+        elif isinstance(channel_config, NS3MmWaveConfig):
+            _mmw = channel_config
+            channel_factory = lambda node_cfg: NS3MmWaveChannel(node_cfg, _mmw)  # noqa: E731
         else:
             raise TypeError(
-                f"channel_config must be an NS3WifiConfig or None, "
+                f"channel_config must be an NS3WifiConfig, NS3MmWaveConfig, or None, "
                 f"got {type(channel_config).__name__}."
             )
 

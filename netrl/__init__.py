@@ -55,6 +55,8 @@ from netrl.central_node import CentralNode
 from netrl.networked_env import NetworkedEnv
 from netrl.channels.ns3_wifi_config import NS3WifiConfig
 from netrl.channels.ns3_channel import NS3WifiChannel
+from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
+from netrl.channels.ns3_mmwave_channel import NS3MmWaveChannel
 
 __version__ = "0.2.0"
 
@@ -68,4 +70,6 @@ __all__ = [
     "NetworkedEnv",
     "NS3WifiConfig",
     "NS3WifiChannel",
+    "NS3MmWaveConfig",
+    "NS3MmWaveChannel",
 ]
