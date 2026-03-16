@@ -10,10 +10,11 @@ config = NetworkConfig(
 
 net_env = NetworkedEnv(env, 
                        config, 
-                       channel_config=NS3WifiConfig(step_duration_ms=10.0, 
-                                                    distance_m=30.0,
+                       channel_config=NS3WifiConfig(step_duration_ms=20.0, 
+                                                    distance_m=50.0,
                                                     tx_power_dbm=20.0,
-                                                    packet_size_bytes=10000))
+                                                    loss_exponent=3.0))
+
 obs, info = net_env.reset()
 print(obs.keys())  # dict_keys(['observations', 'recv_mask'])
 print(obs["observations"].shape)  # (10, 4)
@@ -26,7 +27,8 @@ import time
 start_time = time.time()
 
 for i in range(1000):
-    obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample())
+    obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample(), 
+                                                  packet_size=256)
     if term or trunc:
         env.reset()
 
