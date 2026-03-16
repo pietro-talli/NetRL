@@ -9,6 +9,7 @@ Three channel backends are available:
 | **Gilbert-Elliott** (default) | Two-state Markov chain with configurable loss per state and fixed delay | `NetworkConfig` |
 | **ns-3 802.11a WiFi** | Full MAC/PHY simulation via ns-3 — CSMA/CA, retransmissions, path-loss | `NS3WifiConfig` |
 | **ns-3 5G mmWave** | Full EPC/NR simulation via ns-3-mmwave — 3GPP TR 38.901 path-loss, HARQ, RLC | `NS3MmWaveConfig` |
+| **ns-3 5G-LENA NR** | Full NR + EPC simulation via 5G-LENA (contrib/nr) — 3GPP channel, beamforming, numerology | `NS3LenaConfig` |
 
 ---
 
@@ -19,15 +20,18 @@ Three channel backends are available:
    - [Python package and GE channel (pybind11)](#1-python-package-and-ge-channel-pybind11)
    - [ns-3 WiFi binary](#2-ns-3-wifi-binary)
    - [ns-3 5G mmWave binary](#3-ns-3-5g-mmwave-binary)
+    - [ns-3 5G-LENA binary](#4-ns-3-5g-lena-binary)
 3. [Quick Start](#quick-start)
    - [Gilbert-Elliott channel](#gilbert-elliott-channel)
    - [ns-3 WiFi channel](#ns-3-wifi-channel)
    - [ns-3 5G mmWave channel](#ns-3-5g-mmwave-channel)
+    - [ns-3 5G-LENA channel](#ns-3-5g-lena-channel)
 4. [Observation Space](#observation-space)
 5. [Configuration Reference](#configuration-reference)
    - [NetworkConfig](#networkconfig)
    - [NS3WifiConfig](#ns3wificonfig)
    - [NS3MmWaveConfig](#ns3mmwaveconfig)
+    - [NS3LenaConfig](#ns3lenaconfig)
 6. [NetworkedEnv API](#networkedenv-api)
 7. [Per-step Packet Size](#per-step-packet-size)
 8. [Building the ns-3 WiFi Binary](#building-the-ns-3-wifi-binary)
@@ -97,6 +101,21 @@ bash src/build_ns3_mmwave_sim.sh
 ```
 
 The script expects ns-3-mmwave to be built at `/home/dianalab/Projects/ns3-mmwave/build` (edit the `NS3_MMWAVE_BUILD` variable at the top of the script to change the path). See [Building the ns-3 5G mmWave Binary](#building-the-ns-3-5g-mmwave-binary) for full details.
+
+### 4. ns-3 5G-LENA binary
+
+The 5G-LENA backend requires a separate binary built against your local 5G-LENA tree (contrib/nr). Compile it once before use:
+
+```bash
+bash src/build_ns3_lena_sim.sh
+```
+
+By default, the script expects 5G-LENA at `/home/dianalab/Projects/5g-lena/ns-3-dev`.
+To override:
+
+```bash
+NS3_LENA_DIR=/path/to/5g-lena/ns-3-dev bash src/build_ns3_lena_sim.sh
+```
 
 ---
 
@@ -193,6 +212,35 @@ for _ in range(1000):
 ```
 
 > The mmWave simulation models a full 5G EPC stack (UE → eNB → SGW/PGW → remote host) with 3GPP TR 38.901 path-loss, HARQ retransmissions, and configurable RLC mode. The first `reset()` call waits up to 60 s for the EPC to initialise — subsequent resets are faster.
+
+### ns-3 5G-LENA channel
+
+```python
+import gymnasium as gym
+from netrl import NetworkedEnv, NetworkConfig, NS3LenaConfig
+
+env = NetworkedEnv(
+    gym.make("CartPole-v1"),
+    NetworkConfig(buffer_size=10),
+    channel_config=NS3LenaConfig(
+        distance_m=80.0,
+        frequency_ghz=28.0,
+        bandwidth_ghz=0.1,
+        scenario="UMa",
+        numerology=3,
+        step_duration_ms=2.0,
+    ),
+)
+
+obs, info = env.reset()
+for _ in range(1000):
+    obs, reward, term, trunc, info = env.step(env.action_space.sample())
+    print(info["channel_info"]["state"])   # "NS3_LENA"
+    if term or trunc:
+        obs, info = env.reset()
+```
+
+> The 5G-LENA simulation is persistent across steps and only rebuilt on `env.reset()`. It uses the same NetRL subprocess protocol as the WiFi and mmWave backends.
 
 ---
 
@@ -361,6 +409,62 @@ ns3_mmwave_config = NS3MmWaveConfig(
 | 2–5 ms | 2–5 HARQ rounds fit per step; most packets arrive same step or are dropped |
 | 10+ ms | Very coarse; near-zero delay variation |
 
+### NS3LenaConfig
+
+Controls the ns-3 5G-LENA NR EPC simulation. Requires the `ns3_lena_sim` binary (see [Installation](#4-ns-3-5g-lena-binary)).
+
+```python
+from netrl import NS3LenaConfig
+
+ns3_lena_config = NS3LenaConfig(
+    distance_m         = 50.0,    # UE-to-gNB distance in metres
+    frequency_ghz      = 28.0,    # Carrier frequency in GHz
+    bandwidth_ghz      = 0.1,     # Bandwidth in GHz (100 MHz)
+    ue_tx_power_dbm    = 23.0,    # UE transmit power (dBm)
+    gnb_tx_power_dbm   = 30.0,    # gNB transmit power (dBm)
+    scenario           = "UMa",   # 3GPP channel scenario
+    numerology         = 3,       # NR numerology (0..5)
+    shadowing_enabled  = False,   # Enable shadowing in pathloss model
+    packet_size_bytes  = 64,      # Default payload bytes (min 4)
+    step_duration_ms   = 1.0,     # ns-3 sim time per env step
+    max_pending_steps  = 500,     # Python-side expiry window
+    sim_binary         = "",      # "" => auto-detect src/ns3_lena_sim
+)
+```
+
+| Field | Default | Description |
+|---|---|---|
+| `distance_m` | `50.0` | UE-to-gNB Euclidean distance in metres. Larger distance increases path-loss and retransmissions. |
+| `frequency_ghz` | `28.0` | Carrier frequency in GHz. Passed to the simulator as Hz. |
+| `bandwidth_ghz` | `0.1` | Channel bandwidth in GHz (default 100 MHz). |
+| `ue_tx_power_dbm` | `23.0` | UE transmit power in dBm. |
+| `gnb_tx_power_dbm` | `30.0` | gNB transmit power in dBm. |
+| `scenario` | `"UMa"` | 3GPP scenario used by 5G-LENA channel model (see table below). |
+| `numerology` | `3` | NR numerology index in `[0, 5]`; impacts slot duration and latency granularity. |
+| `shadowing_enabled` | `False` | Enables/disables large-scale shadow fading in pathloss model. |
+| `packet_size_bytes` | `64` | Default probe payload bytes (first 4 bytes carry `step_id`). |
+| `step_duration_ms` | `1.0` | ns-3 simulation time per environment step (ms). |
+| `max_pending_steps` | `500` | Python-side pending-packet expiry threshold. |
+| `sim_binary` | `""` | Absolute path to `ns3_lena_sim`; empty string auto-detects `<project_root>/src/ns3_lena_sim`. |
+
+**Supported `scenario` values:**
+
+| Value | Description |
+|---|---|
+| `"RMa"` | Rural Macro |
+| `"UMa"` | Urban Macro |
+| `"UMi-StreetCanyon"` | Urban Micro Street Canyon |
+| `"InH-OfficeMixed"` | Indoor Hotspot Mixed Office |
+| `"InH-OfficeOpen"` | Indoor Hotspot Open Office |
+
+**Choosing `numerology`:**
+
+| Value | Typical effect |
+|---|---|
+| `0–1` | Longer slots, coarser timing, lower PHY overhead |
+| `2–3` | Balanced timing/overhead for many RL channel studies |
+| `4–5` | Short slots, finer latency dynamics, higher overhead |
+
 ---
 
 ## NetworkedEnv API
@@ -372,7 +476,7 @@ class NetworkedEnv(gymnasium.Wrapper):
         self,
         env: gymnasium.Env,
         config: NetworkConfig,
-        channel_config: Optional[Union[NS3WifiConfig, NS3MmWaveConfig]] = None,
+        channel_config: Optional[Union[NS3WifiConfig, NS3MmWaveConfig, NS3LenaConfig]] = None,
         node_id: str = "agent_0",
     )
 ```
@@ -381,7 +485,7 @@ class NetworkedEnv(gymnasium.Wrapper):
 |---|---|
 | `env` | Base gymnasium environment. Must have a `Box` observation space. |
 | `config` | `NetworkConfig`. Controls buffer size and GE channel parameters. |
-| `channel_config` | `None` → GE channel. `NS3WifiConfig(...)` → ns-3 WiFi. `NS3MmWaveConfig(...)` → ns-3 5G mmWave. |
+| `channel_config` | `None` → GE channel. `NS3WifiConfig(...)` → ns-3 WiFi. `NS3MmWaveConfig(...)` → ns-3 5G mmWave. `NS3LenaConfig(...)` → ns-3 5G-LENA NR. |
 | `node_id` | Node identifier string. Only change for non-default multi-agent setups. |
 
 ```python

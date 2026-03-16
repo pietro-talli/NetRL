@@ -60,6 +60,8 @@ from netrl.channels.ns3_wifi_config import NS3WifiConfig
 from netrl.channels.ns3_channel import NS3WifiChannel
 from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
 from netrl.channels.ns3_mmwave_channel import NS3MmWaveChannel
+from netrl.channels.ns3_lena_config import NS3LenaConfig
+from netrl.channels.ns3_lena_channel import NS3LenaChannel
 
 
 class NetworkedEnv(gym.Wrapper):
@@ -74,7 +76,7 @@ class NetworkedEnv(gym.Wrapper):
         Channel and buffer configuration.  For the Gilbert-Elliott backend
         this also carries the Markov-chain and loss parameters.  Validated
         on construction.
-    channel_config : NS3WifiConfig | NS3MmWaveConfig | None, optional
+    channel_config : NS3WifiConfig | NS3MmWaveConfig | NS3LenaConfig | None, optional
         Selects and configures the channel backend:
 
         ``None`` (default)
@@ -91,6 +93,11 @@ class NetworkedEnv(gym.Wrapper):
             ``src/ns3_mmwave_sim`` must be built first
             (``bash src/build_ns3_mmwave_sim.sh``).
 
+        ``NS3LenaConfig(...)``
+            Use the ns-3 5G-LENA NR EPC channel.  The binary
+            ``src/ns3_lena_sim`` must be built first
+            (``bash src/build_ns3_lena_sim.sh``).
+
     node_id        : str
         Identifier for this agent's transmission node.  Default "agent_0".
     """
@@ -99,7 +106,7 @@ class NetworkedEnv(gym.Wrapper):
         self,
         env: gym.Env,
         config: NetworkConfig,
-        channel_config: Optional[Union[NS3WifiConfig, NS3MmWaveConfig]] = None,
+        channel_config: Optional[Union[NS3WifiConfig, NS3MmWaveConfig, NS3LenaConfig]] = None,
         node_id: str = "agent_0",
     ) -> None:
         super().__init__(env)
@@ -124,9 +131,12 @@ class NetworkedEnv(gym.Wrapper):
         elif isinstance(channel_config, NS3MmWaveConfig):
             _mmw = channel_config
             channel_factory = lambda node_cfg: NS3MmWaveChannel(node_cfg, _mmw)  # noqa: E731
+        elif isinstance(channel_config, NS3LenaConfig):
+            _lena = channel_config
+            channel_factory = lambda node_cfg: NS3LenaChannel(node_cfg, _lena)  # noqa: E731
         else:
             raise TypeError(
-                f"channel_config must be an NS3WifiConfig, NS3MmWaveConfig, or None, "
+                f"channel_config must be an NS3WifiConfig, NS3MmWaveConfig, NS3LenaConfig, or None, "
                 f"got {type(channel_config).__name__}."
             )
 
