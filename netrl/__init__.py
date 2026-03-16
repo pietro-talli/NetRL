@@ -49,7 +49,6 @@ ns3 WiFi backend (realistic channel)
 """
 
 from netrl.observation_buffer import ObservationBuffer
-from netrl.node import Node
 from netrl.channels.network_config import NetworkConfig
 from netrl.channels.comm_channel import CommChannel, GEChannel, PerfectChannel
 from netrl.central_node import CentralNode
@@ -61,7 +60,6 @@ __version__ = "0.2.0"
 
 __all__ = [
     "ObservationBuffer",
-    "Node",
     "NetworkConfig",
     "CommChannel",
     "GEChannel",
