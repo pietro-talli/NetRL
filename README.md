@@ -318,7 +318,7 @@ Installs ns-3 headers and shared libraries into your Python environment. The bui
 
 **Option B — ns-3-mmwave source build (ns-3 3.42):**
 
-The build script falls back to a compiled ns-3-mmwave tree at `/home/dianalab/Projects/ns3-mmwave/build`. Uses `-std=c++17`.
+The build script falls back to a compiled ns-3-mmwave tree at `/path/to/ns3/build`. Uses `-std=c++17`.
 
 In both cases, `g++` must be available and support C++17 / C++20 respectively.
 
