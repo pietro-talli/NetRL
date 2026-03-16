@@ -17,6 +17,7 @@ ns3_wifi_sim
 
 build/
 build_ns3/
+*.egg-info/
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)
