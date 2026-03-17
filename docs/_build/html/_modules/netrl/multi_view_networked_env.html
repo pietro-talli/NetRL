@@ -1,0 +1,703 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>netrl.multi_view_networked_env &mdash; NetRL 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            NetRL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#core-package">Core package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#ns-3-802-11a-wifi-backend">ns-3 802.11a WiFi backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#ns-3-5g-mmwave-backend">ns-3 5G mmWave backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#ns-3-5g-lena-nr-backend">ns-3 5G-LENA NR backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#multi-ue-wifi-backend">Multi-UE WiFi backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#development-extras">Development extras</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#single-observer">Single observer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#multiple-observers-multi-view">Multiple observers (multi-view)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#switching-to-a-realistic-ns-3-wifi-channel">Switching to a realistic ns-3 WiFi channel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/single_observer.html">Single-Observer Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#observation-space">Observation space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#per-step-sequence">Per-step sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#construction">Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#using-step">Using <code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#resetting">Resetting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#training-with-stable-baselines3">Training with Stable-Baselines3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/single_observer.html#parallel-environments">Parallel environments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/multi_view.html">Multi-View Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#motivation">Motivation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#the-multiviewmodel-abstraction">The <code class="docutils literal notranslate"><span class="pre">MultiViewModel</span></code> abstraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#constructing-the-environment">Constructing the environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#observation-space">Observation space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#using-step">Using <code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#the-extended-info-dict">The extended <code class="docutils literal notranslate"><span class="pre">info</span></code> dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#using-a-shared-802-11a-wifi-channel">Using a shared 802.11a WiFi channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/multi_view.html#implementation-tips">Implementation tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/channels.html">Choosing a Channel Backend</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#backend-overview">Backend overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#gilbertelliott-channel">Gilbert–Elliott channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#perfect-channel">Perfect channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#ns-3-802-11a-wifi">ns-3 802.11a WiFi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#ns-3-5g-mmwave">ns-3 5G mmWave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#ns-3-5g-lena-nr">ns-3 5G-LENA NR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/channels.html#multi-ue-802-11a-wifi">Multi-UE 802.11a WiFi</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/custom_channel.html">Writing a Custom Channel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/custom_channel.html#the-commchannel-interface">The CommChannel interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/custom_channel.html#minimal-example-bernoulli-channel">Minimal example: Bernoulli channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/custom_channel.html#using-the-custom-channel">Using the custom channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/custom_channel.html#subprocess-backed-channel">Subprocess-backed channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/custom_channel.html#factory-pattern-for-shared-subprocesses">Factory pattern for shared subprocesses</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/envs.html">Environment Wrappers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/envs.html#networkedenv">NetworkedEnv</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/envs.html#netrl.NetworkedEnv"><code class="docutils literal notranslate"><span class="pre">NetworkedEnv</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/envs.html#multiviewnetworkedenv">MultiViewNetworkedEnv</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/envs.html#netrl.MultiViewNetworkedEnv"><code class="docutils literal notranslate"><span class="pre">MultiViewNetworkedEnv</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/multi_view_model.html">MultiViewModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/multi_view_model.html#netrl.MultiViewModel"><code class="docutils literal notranslate"><span class="pre">MultiViewModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/multi_view_model.html#netrl.MultiViewModel.__init__"><code class="docutils literal notranslate"><span class="pre">MultiViewModel.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/multi_view_model.html#netrl.MultiViewModel.observe"><code class="docutils literal notranslate"><span class="pre">MultiViewModel.observe()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/multi_view_model.html#usage-pattern">Usage pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/central_node.html">CentralNode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode"><code class="docutils literal notranslate"><span class="pre">CentralNode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.__init__"><code class="docutils literal notranslate"><span class="pre">CentralNode.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.receive_from"><code class="docutils literal notranslate"><span class="pre">CentralNode.receive_from()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.flush_and_update"><code class="docutils literal notranslate"><span class="pre">CentralNode.flush_and_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.get_buffer"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_buffer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.get_all_buffers"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_all_buffers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.get_channel_info"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_channel_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.reset"><code class="docutils literal notranslate"><span class="pre">CentralNode.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.node_ids"><code class="docutils literal notranslate"><span class="pre">CentralNode.node_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/central_node.html#netrl.CentralNode.config"><code class="docutils literal notranslate"><span class="pre">CentralNode.config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/central_node.html#direct-usage-example">Direct usage example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/central_node.html#per-node-observation-shapes">Per-node observation shapes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/channels.html">Channels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#commchannel-abstract-base">CommChannel (abstract base)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.CommChannel"><code class="docutils literal notranslate"><span class="pre">CommChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#networkconfig">NetworkConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NetworkConfig"><code class="docutils literal notranslate"><span class="pre">NetworkConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#gechannel">GEChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.GEChannel"><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#perfectchannel">PerfectChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.PerfectChannel"><code class="docutils literal notranslate"><span class="pre">PerfectChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3wificonfig">NS3WifiConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3WifiConfig"><code class="docutils literal notranslate"><span class="pre">NS3WifiConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3wifichannel">NS3WifiChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3WifiChannel"><code class="docutils literal notranslate"><span class="pre">NS3WifiChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3mmwaveconfig">NS3MmWaveConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3MmWaveConfig"><code class="docutils literal notranslate"><span class="pre">NS3MmWaveConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3mmwavechannel">NS3MmWaveChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3MmWaveChannel"><code class="docutils literal notranslate"><span class="pre">NS3MmWaveChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3lenaconfig">NS3LenaConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3LenaConfig"><code class="docutils literal notranslate"><span class="pre">NS3LenaConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3lenachannel">NS3LenaChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3LenaChannel"><code class="docutils literal notranslate"><span class="pre">NS3LenaChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3wifimultiueconfig">NS3WifiMultiUEConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3WifiMultiUEConfig"><code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#make-multi-ue-wifi-factory">make_multi_ue_wifi_factory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.make_multi_ue_wifi_factory"><code class="docutils literal notranslate"><span class="pre">make_multi_ue_wifi_factory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3wifiuechannel">NS3WifiUEChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3WifiUEChannel"><code class="docutils literal notranslate"><span class="pre">NS3WifiUEChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/channels.html#ns3wifimultiuebackend">NS3WifiMultiUEBackend</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/channels.html#netrl.NS3WifiMultiUEBackend"><code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEBackend</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/buffers.html">ObservationBuffer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer.__init__"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer.add"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.add()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer.get"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer.get_padded"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.get_padded()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer.clear"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/buffers.html#netrl.ObservationBuffer.is_full"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.is_full</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/buffers.html#semantics">Semantics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/concepts.html">Architecture &amp; Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#system-overview">System overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#class-hierarchy">Class hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#timing-model">Timing model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#persisted-simulation-state">Persisted simulation state</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/concepts.html#warm-up-period">Warm-up period</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#gilbertelliott-channel-model">Gilbert–Elliott channel model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#ns-3-subprocess-protocol">ns-3 subprocess protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#observation-buffer-semantics">Observation buffer semantics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/concepts.html#strategy-pattern">Strategy pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/troubleshooting.html#build-errors">Build errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#importerror-no-module-named-netcomm"><code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'netcomm'</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#filenotfounderror-ns3-wifi-sim-binary-not-found"><code class="docutils literal notranslate"><span class="pre">FileNotFoundError:</span> <span class="pre">ns3_wifi_sim</span> <span class="pre">binary</span> <span class="pre">not</span> <span class="pre">found</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#ns3-installation-not-found-build-script-error"><code class="docutils literal notranslate"><span class="pre">ns3</span> <span class="pre">installation</span> <span class="pre">not</span> <span class="pre">found</span></code> (build script error)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/troubleshooting.html#runtime-errors">Runtime errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#runtimeerror-ns3-wifi-sim-did-not-emit-ready-within-30-s"><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">ns3_wifi_sim</span> <span class="pre">did</span> <span class="pre">not</span> <span class="pre">emit</span> <span class="pre">READY</span> <span class="pre">within</span> <span class="pre">30</span> <span class="pre">s</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#runtimeerror-subprocess-stdin-pipe-broken"><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">subprocess</span> <span class="pre">stdin</span> <span class="pre">pipe</span> <span class="pre">broken</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#timeouterror-no-response-within-n-s-flush"><code class="docutils literal notranslate"><span class="pre">TimeoutError:</span> <span class="pre">no</span> <span class="pre">response</span> <span class="pre">within</span> <span class="pre">N</span> <span class="pre">s</span> <span class="pre">(FLUSH)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/troubleshooting.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#gechannel-throughput-is-much-higher-than-ns-3-backends"><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code> throughput is much higher than ns-3 backends</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/troubleshooting.html#observations">Observations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#obs-recv-mask-is-all-false-for-many-steps"><code class="docutils literal notranslate"><span class="pre">obs[&quot;recv_mask&quot;]</span></code> is all <code class="docutils literal notranslate"><span class="pre">False</span></code> for many steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#obs-observations-contains-stale-data"><code class="docutils literal notranslate"><span class="pre">obs[&quot;observations&quot;]</span></code> contains stale data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/troubleshooting.html#multi-ue-issues">Multi-UE issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#valueerror-factory-called-for-ue-index-n-but-n-ues-m"><code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">Factory</span> <span class="pre">called</span> <span class="pre">for</span> <span class="pre">UE</span> <span class="pre">index</span> <span class="pre">N</span> <span class="pre">but</span> <span class="pre">n_ues=M</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/troubleshooting.html#some-ues-have-much-lower-packet-delivery-than-others">Some UEs have much lower packet delivery than others</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NetRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">netrl.multi_view_networked_env</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for netrl.multi_view_networked_env</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">multi_view_networked_env.py</span>
+<span class="sd">===========================</span>
+<span class="sd">MultiViewNetworkedEnv — a gymnasium.Wrapper that simulates multiple concurrent</span>
+<span class="sd">observers each transmitting their own copy of the environment observation</span>
+<span class="sd">through independent (or shared) communication channels to a central node.</span>
+
+<span class="sd">Motivation</span>
+<span class="sd">----------</span>
+<span class="sd">In many networked control scenarios a single physical plant is monitored by</span>
+<span class="sd">several sensors or agents that each send state information over a shared or</span>
+<span class="sd">independent wireless medium.  MultiViewNetworkedEnv extends NetworkedEnv to</span>
+<span class="sd">N such observers while giving the caller precise per-step control over:</span>
+
+<span class="sd">  * **which observers transmit** at each step (e.g. duty-cycling, failures);</span>
+<span class="sd">  * **how many bytes** each active observer sends (e.g. variable-rate coding).</span>
+
+<span class="sd">Architecture</span>
+<span class="sd">------------</span>
+<span class="sd">Internally the wrapper owns a single CentralNode that manages one</span>
+<span class="sd">CommChannel + ObservationBuffer per observer.  The channel type (and whether</span>
+<span class="sd">multiple observers share the same physical medium) is determined entirely by</span>
+<span class="sd">the ``channel_factory`` callable:</span>
+
+<span class="sd">    # Each observer gets its own independent GE channel</span>
+<span class="sd">    factory = GEChannel</span>
+
+<span class="sd">    # Each observer gets its own independent ns-3 WiFi subprocess</span>
+<span class="sd">    factory = lambda nc: NS3WifiChannel(nc, NS3WifiConfig(distance_m=15.0))</span>
+
+<span class="sd">    # All observers share ONE ns-3 infrastructure BSS (realistic contention)</span>
+<span class="sd">    factory = make_multi_ue_wifi_factory(</span>
+<span class="sd">        NS3WifiMultiUEConfig(n_ues=3, distances_m=[10.0, 30.0, 60.0])</span>
+<span class="sd">    )</span>
+
+<span class="sd">Observation space</span>
+<span class="sd">-----------------</span>
+<span class="sd">The original Box observation space is replaced with a nested Dict:</span>
+
+<span class="sd">    gymnasium.spaces.Dict({</span>
+<span class="sd">        &quot;&lt;observer_id&gt;&quot;: gymnasium.spaces.Dict({</span>
+<span class="sd">            &quot;observations&quot;: Box(shape=(buffer_size, *obs_shape), ...),</span>
+<span class="sd">            &quot;recv_mask&quot;:    MultiBinary(buffer_size),</span>
+<span class="sd">        }),</span>
+<span class="sd">        ...</span>
+<span class="sd">    })</span>
+
+<span class="sd">The buffer for each observer is a sliding window of the last buffer_size</span>
+<span class="sd">delivery slots.  Index [-1] is the most recent; index [0] is the oldest.</span>
+<span class="sd">Slots where no packet arrived are zero-filled with recv_mask=False.</span>
+
+<span class="sd">Step semantics</span>
+<span class="sd">--------------</span>
+<span class="sd">At every step the wrapper:</span>
+<span class="sd">  1. Steps the underlying environment → raw_obs, reward, flags, info.</span>
+<span class="sd">  2. For every observer that is active this step (see transmit_mask):</span>
+<span class="sd">       central.receive_from(observer_id, raw_obs, step, packet_size)</span>
+<span class="sd">  3. Flushes all observers:</span>
+<span class="sd">       arrived_map = central.flush_and_update(step)</span>
+<span class="sd">     This always flushes every observer&#39;s channel (even silent ones) so</span>
+<span class="sd">     that all buffers advance by exactly one slot per step.</span>
+<span class="sd">  4. Increments step_count.</span>
+<span class="sd">  5. Assembles and returns the per-observer Dict observation.</span>
+
+<span class="sd">The ``info`` dict returned by step() is extended with:</span>
+<span class="sd">  ``&quot;channel_info&quot;``      : Dict[observer_id → channel diagnostic dict]</span>
+<span class="sd">  ``&quot;arrived_this_step&quot;`` : Dict[observer_id → bool]</span>
+<span class="sd">  ``&quot;transmitted_this_step&quot;`` : Dict[observer_id → bool]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="kn">import</span> <span class="n">spaces</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">netrl.central_node</span><span class="w"> </span><span class="kn">import</span> <span class="n">CentralNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netrl.channels.comm_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommChannel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netrl.channels.network_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netrl.utils.multi_view_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiViewModel</span>
+
+
+<div class="viewcode-block" id="MultiViewNetworkedEnv">
+<a class="viewcode-back" href="../../api/envs.html#netrl.MultiViewNetworkedEnv">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiViewNetworkedEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Wrapper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gymnasium wrapper with multiple observers and per-step transmission control.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env : gymnasium.Env</span>
+<span class="sd">        The base environment.  Must have a ``Box`` observation space.</span>
+
+<span class="sd">    config : NetworkConfig</span>
+<span class="sd">        Shared channel and buffer configuration.  ``buffer_size`` applies to</span>
+<span class="sd">        every observer&#39;s buffer.  For GE channels, the Markov parameters are</span>
+<span class="sd">        also read from here.  Call ``config.validate()`` before passing.</span>
+
+<span class="sd">    observer_ids : List[str]</span>
+<span class="sd">        Unique string identifier for each observer.  The length of this list</span>
+<span class="sd">        determines the number of independent transmission paths.  These ids</span>
+<span class="sd">        are also used as keys in the returned observation dict and in the</span>
+<span class="sd">        ``transmit_mask`` / ``packet_sizes`` arguments of ``step()``.</span>
+
+<span class="sd">    channel_factory : Callable[[NetworkConfig], CommChannel]</span>
+<span class="sd">        Called once per observer (in the order of observer_ids) during</span>
+<span class="sd">        construction to create each observer&#39;s CommChannel.  Choose from:</span>
+
+<span class="sd">        ``GEChannel``</span>
+<span class="sd">            Independent Gilbert–Elliott channel per observer.  All GE</span>
+<span class="sd">            parameters come from ``config``.</span>
+
+<span class="sd">        ``PerfectChannel``</span>
+<span class="sd">            Lossless zero-delay channel (useful for debugging).</span>
+
+<span class="sd">        ``lambda nc: NS3WifiChannel(nc, NS3WifiConfig(...))``</span>
+<span class="sd">            Independent ns-3 802.11a WiFi subprocess per observer.</span>
+
+<span class="sd">        ``make_multi_ue_wifi_factory(NS3WifiMultiUEConfig(...))``</span>
+<span class="sd">            **Shared** ns-3 infrastructure BSS for all observers.  All</span>
+<span class="sd">            observers contend for the same wireless medium.  The factory</span>
+<span class="sd">            must be created *before* passing it here, and</span>
+<span class="sd">            ``NS3WifiMultiUEConfig.n_ues`` must equal ``len(observer_ids)``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Three observers sharing a single 802.11a WiFi channel::</span>
+
+<span class="sd">        from netrl import NetworkConfig, MultiViewNetworkedEnv</span>
+<span class="sd">        from netrl import NS3WifiMultiUEConfig, make_multi_ue_wifi_factory</span>
+
+<span class="sd">        factory = make_multi_ue_wifi_factory(</span>
+<span class="sd">            NS3WifiMultiUEConfig(</span>
+<span class="sd">                n_ues=3,</span>
+<span class="sd">                distances_m=[10.0, 30.0, 60.0],</span>
+<span class="sd">                step_duration_ms=2.0,</span>
+<span class="sd">            )</span>
+<span class="sd">        )</span>
+<span class="sd">        env = MultiViewNetworkedEnv(</span>
+<span class="sd">            gym.make(&quot;CartPole-v1&quot;),</span>
+<span class="sd">            NetworkConfig(buffer_size=10),</span>
+<span class="sd">            observer_ids=[&quot;near&quot;, &quot;mid&quot;, &quot;far&quot;],</span>
+<span class="sd">            channel_factory=factory,</span>
+<span class="sd">        )</span>
+<span class="sd">        obs, info = env.reset()</span>
+<span class="sd">        # obs[&quot;near&quot;][&quot;observations&quot;].shape == (10, 4)</span>
+<span class="sd">        # obs[&quot;near&quot;][&quot;recv_mask&quot;].shape    == (10,)</span>
+
+<span class="sd">        # Step with all observers transmitting (default)</span>
+<span class="sd">        obs, r, term, trunc, info = env.step(action)</span>
+
+<span class="sd">        # Step: only &quot;near&quot; transmits, with 256 bytes</span>
+<span class="sd">        obs, r, term, trunc, info = env.step(</span>
+<span class="sd">            action,</span>
+<span class="sd">            transmit_mask={&quot;near&quot;: True, &quot;mid&quot;: False, &quot;far&quot;: False},</span>
+<span class="sd">            packet_sizes={&quot;near&quot;: 256},</span>
+<span class="sd">        )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MultiViewNetworkedEnv.__init__">
+<a class="viewcode-back" href="../../api/envs.html#netrl.MultiViewNetworkedEnv.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">NetworkConfig</span><span class="p">,</span>
+        <span class="n">observer_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">multi_view_model</span><span class="p">:</span> <span class="n">MultiViewModel</span><span class="p">,</span>
+        <span class="n">channel_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NetworkConfig</span><span class="p">],</span> <span class="n">CommChannel</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;MultiViewNetworkedEnv requires the wrapped env to have a &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Box observation space, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">observer_ids</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;observer_ids must not be empty.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observer_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">observer_ids</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;observer_ids must be unique.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>       <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_observer_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">observer_ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_step_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># One channel + one buffer per observer, managed by CentralNode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_central</span> <span class="o">=</span> <span class="n">CentralNode</span><span class="p">(</span>
+            <span class="n">node_ids</span><span class="o">=</span><span class="n">observer_ids</span><span class="p">,</span>
+            <span class="n">obs_shape</span><span class="o">=</span><span class="n">multi_view_model</span><span class="o">.</span><span class="n">obs_shapes</span><span class="p">,</span>
+            <span class="n">obs_dtype</span><span class="o">=</span><span class="n">multi_view_model</span><span class="o">.</span><span class="n">obs_dtypes</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">channel_factory</span><span class="o">=</span><span class="n">channel_factory</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Nested Dict observation space: observer → {observations, recv_mask}</span>
+        <span class="c1"># Shape is (buffer_size, *obs_shape) because the agent sees a sliding</span>
+        <span class="c1"># window of buffer_size delivery slots, not a single observation.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Dict</span><span class="p">({</span>
+            <span class="n">oid</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Dict</span><span class="p">({</span>
+                <span class="s2">&quot;observations&quot;</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
+                    <span class="n">low</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                    <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">,</span> <span class="o">*</span><span class="n">multi_view_model</span><span class="o">.</span><span class="n">obs_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">multi_view_model</span><span class="o">.</span><span class="n">obs_dtypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;recv_mask&quot;</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiBinary</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">),</span>
+            <span class="p">})</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">oid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">observer_ids</span><span class="p">)</span>
+        <span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_multi_view_model</span> <span class="o">=</span> <span class="n">multi_view_model</span></div>
+
+
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="c1"># gymnasium.Wrapper overrides</span>
+    <span class="c1"># -----------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="MultiViewNetworkedEnv.reset">
+<a class="viewcode-back" href="../../api/envs.html#netrl.MultiViewNetworkedEnv.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset the wrapped environment and all channel / buffer state.</span>
+
+<span class="sd">        Returns all-zeros observations with recv_mask=False for every observer</span>
+<span class="sd">        because no transmission has occurred yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_central</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_step_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_obs</span><span class="p">(),</span> <span class="n">info</span></div>
+
+
+<div class="viewcode-block" id="MultiViewNetworkedEnv.step">
+<a class="viewcode-back" href="../../api/envs.html#netrl.MultiViewNetworkedEnv.step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">transmit_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">packet_sizes</span><span class="p">:</span>  <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>  <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Step the environment and run the multi-observer channel simulation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        action : Any</span>
+<span class="sd">            Action compatible with the wrapped environment.</span>
+
+<span class="sd">        transmit_mask : Dict[str, bool] | None, optional</span>
+<span class="sd">            Controls which observers transmit this step.</span>
+
+<span class="sd">            ``None`` (default)</span>
+<span class="sd">                All observers transmit.</span>
+<span class="sd">            Dict mapping observer_id → bool</span>
+<span class="sd">                Only observers mapped to ``True`` transmit.</span>
+<span class="sd">                Observers absent from the dict default to ``True``</span>
+<span class="sd">                (i.e. the mask is an opt-out, not opt-in).</span>
+
+<span class="sd">        packet_sizes : Dict[str, int] | None, optional</span>
+<span class="sd">            Per-observer payload in bytes for this step.</span>
+
+<span class="sd">            ``None`` (default)</span>
+<span class="sd">                Every transmitting observer uses its channel&#39;s own default</span>
+<span class="sd">                packet size (e.g. ``NS3WifiMultiUEConfig.packet_size_bytes``).</span>
+<span class="sd">            Dict mapping observer_id → int</span>
+<span class="sd">                Overrides the packet size for the named observer.</span>
+<span class="sd">                Absent observers use the channel default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        obs : Dict[observer_id → Dict{&quot;observations&quot;, &quot;recv_mask&quot;}]</span>
+<span class="sd">            Observation buffers for all observers.</span>
+<span class="sd">        reward : float</span>
+<span class="sd">        terminated : bool</span>
+<span class="sd">        truncated : bool</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            Extended with:</span>
+
+<span class="sd">            ``&quot;channel_info&quot;``</span>
+<span class="sd">                Dict[observer_id → channel diagnostic dict from</span>
+<span class="sd">                CommChannel.get_channel_info()].</span>
+
+<span class="sd">            ``&quot;arrived_this_step&quot;``</span>
+<span class="sd">                Dict[observer_id → bool] — True if a packet from that</span>
+<span class="sd">                observer arrived at the AP during this step.</span>
+
+<span class="sd">            ``&quot;transmitted_this_step&quot;``</span>
+<span class="sd">                Dict[observer_id → bool] — True if that observer attempted</span>
+<span class="sd">                to transmit this step (i.e. was not masked out).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        ``flush_and_update`` is called for **all** observers every step,</span>
+<span class="sd">        regardless of ``transmit_mask``.  This ensures every buffer advances</span>
+<span class="sd">        by exactly one slot per step and that delayed packets from previous</span>
+<span class="sd">        steps are still collected for silent observers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw_obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_count</span>
+
+        <span class="c1"># Observe through the multi-view model</span>
+        <span class="n">multi_view_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multi_view_model</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span> <span class="n">raw_obs</span><span class="p">)</span>
+
+        <span class="c1"># Track which observers are transmitting this step</span>
+        <span class="n">transmitted</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">oid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observer_ids</span><span class="p">:</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="n">transmit_mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">transmit_mask</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">transmitted</span><span class="p">[</span><span class="n">oid</span><span class="p">]</span> <span class="o">=</span> <span class="n">active</span>
+            <span class="k">if</span> <span class="n">active</span><span class="p">:</span>
+                <span class="n">pkt_size</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">packet_sizes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">packet_sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_central</span><span class="o">.</span><span class="n">receive_from</span><span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="n">multi_view_obs</span><span class="p">[</span><span class="n">oid</span><span class="p">],</span> <span class="n">t</span><span class="p">,</span> <span class="n">pkt_size</span><span class="p">)</span>
+
+        <span class="c1"># Flush ALL observers so every buffer advances uniformly.</span>
+        <span class="c1"># Observers that did not transmit this step simply contribute None</span>
+        <span class="c1"># to their buffer (packet not in-flight → nothing to deliver).</span>
+        <span class="n">arrived_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_central</span><span class="o">.</span><span class="n">flush_and_update</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_step_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">info</span><span class="p">[</span><span class="s2">&quot;channel_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">oid</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_central</span><span class="o">.</span><span class="n">get_channel_info</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">oid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observer_ids</span>
+        <span class="p">}</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">&quot;arrived_this_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">oid</span><span class="p">:</span> <span class="n">arrived_map</span><span class="p">[</span><span class="n">oid</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">oid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observer_ids</span>
+        <span class="p">}</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">&quot;transmitted_this_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transmitted</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_obs</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span></div>
+
+
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="c1"># Internal helpers</span>
+    <span class="c1"># -----------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble the per-observer Dict observation from CentralNode buffers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">oid</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;observations&quot;</span><span class="p">:</span> <span class="n">obs_buf</span><span class="p">,</span> <span class="s2">&quot;recv_mask&quot;</span><span class="p">:</span> <span class="n">recv_mask</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">oid</span><span class="p">,</span> <span class="p">(</span><span class="n">obs_buf</span><span class="p">,</span> <span class="n">recv_mask</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_central</span><span class="o">.</span><span class="n">get_all_buffers</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="c1"># Convenience properties</span>
+    <span class="c1"># -----------------------------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Current step counter (0-indexed; incremented after each step call).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_count</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observer_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ordered list of observer identifiers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_observer_ids</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NetworkConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The NetworkConfig used to configure this wrapper.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">central_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CentralNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Direct access to the underlying CentralNode.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_central</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NetRL Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

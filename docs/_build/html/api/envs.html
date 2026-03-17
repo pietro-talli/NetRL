@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Environment Wrappers &mdash; NetRL 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MultiViewModel" href="multi_view_model.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NetRL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#core-package">Core package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#ns-3-802-11a-wifi-backend">ns-3 802.11a WiFi backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#ns-3-5g-mmwave-backend">ns-3 5G mmWave backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#ns-3-5g-lena-nr-backend">ns-3 5G-LENA NR backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#multi-ue-wifi-backend">Multi-UE WiFi backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#development-extras">Development extras</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#single-observer">Single observer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#multiple-observers-multi-view">Multiple observers (multi-view)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#switching-to-a-realistic-ns-3-wifi-channel">Switching to a realistic ns-3 WiFi channel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/single_observer.html">Single-Observer Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#observation-space">Observation space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#per-step-sequence">Per-step sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#construction">Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#using-step">Using <code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#resetting">Resetting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#training-with-stable-baselines3">Training with Stable-Baselines3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/single_observer.html#parallel-environments">Parallel environments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/multi_view.html">Multi-View Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#motivation">Motivation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#the-multiviewmodel-abstraction">The <code class="docutils literal notranslate"><span class="pre">MultiViewModel</span></code> abstraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#constructing-the-environment">Constructing the environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#observation-space">Observation space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#using-step">Using <code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#the-extended-info-dict">The extended <code class="docutils literal notranslate"><span class="pre">info</span></code> dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#using-a-shared-802-11a-wifi-channel">Using a shared 802.11a WiFi channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/multi_view.html#implementation-tips">Implementation tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/channels.html">Choosing a Channel Backend</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#backend-overview">Backend overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#gilbertelliott-channel">Gilbert–Elliott channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#perfect-channel">Perfect channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#ns-3-802-11a-wifi">ns-3 802.11a WiFi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#ns-3-5g-mmwave">ns-3 5G mmWave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#ns-3-5g-lena-nr">ns-3 5G-LENA NR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/channels.html#multi-ue-802-11a-wifi">Multi-UE 802.11a WiFi</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/custom_channel.html">Writing a Custom Channel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/custom_channel.html#the-commchannel-interface">The CommChannel interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/custom_channel.html#minimal-example-bernoulli-channel">Minimal example: Bernoulli channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/custom_channel.html#using-the-custom-channel">Using the custom channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/custom_channel.html#subprocess-backed-channel">Subprocess-backed channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/custom_channel.html#factory-pattern-for-shared-subprocesses">Factory pattern for shared subprocesses</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Environment Wrappers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#networkedenv">NetworkedEnv</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#netrl.NetworkedEnv"><code class="docutils literal notranslate"><span class="pre">NetworkedEnv</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#multiviewnetworkedenv">MultiViewNetworkedEnv</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#netrl.MultiViewNetworkedEnv"><code class="docutils literal notranslate"><span class="pre">MultiViewNetworkedEnv</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multi_view_model.html">MultiViewModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="multi_view_model.html#netrl.MultiViewModel"><code class="docutils literal notranslate"><span class="pre">MultiViewModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multi_view_model.html#netrl.MultiViewModel.__init__"><code class="docutils literal notranslate"><span class="pre">MultiViewModel.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="multi_view_model.html#netrl.MultiViewModel.observe"><code class="docutils literal notranslate"><span class="pre">MultiViewModel.observe()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view_model.html#usage-pattern">Usage pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="central_node.html">CentralNode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="central_node.html#netrl.CentralNode"><code class="docutils literal notranslate"><span class="pre">CentralNode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.__init__"><code class="docutils literal notranslate"><span class="pre">CentralNode.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.receive_from"><code class="docutils literal notranslate"><span class="pre">CentralNode.receive_from()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.flush_and_update"><code class="docutils literal notranslate"><span class="pre">CentralNode.flush_and_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.get_buffer"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_buffer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.get_all_buffers"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_all_buffers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.get_channel_info"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_channel_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.reset"><code class="docutils literal notranslate"><span class="pre">CentralNode.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.node_ids"><code class="docutils literal notranslate"><span class="pre">CentralNode.node_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="central_node.html#netrl.CentralNode.config"><code class="docutils literal notranslate"><span class="pre">CentralNode.config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="central_node.html#direct-usage-example">Direct usage example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="central_node.html#per-node-observation-shapes">Per-node observation shapes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="channels.html">Channels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#commchannel-abstract-base">CommChannel (abstract base)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.CommChannel"><code class="docutils literal notranslate"><span class="pre">CommChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#networkconfig">NetworkConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NetworkConfig"><code class="docutils literal notranslate"><span class="pre">NetworkConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#gechannel">GEChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.GEChannel"><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#perfectchannel">PerfectChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.PerfectChannel"><code class="docutils literal notranslate"><span class="pre">PerfectChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3wificonfig">NS3WifiConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3WifiConfig"><code class="docutils literal notranslate"><span class="pre">NS3WifiConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3wifichannel">NS3WifiChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3WifiChannel"><code class="docutils literal notranslate"><span class="pre">NS3WifiChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3mmwaveconfig">NS3MmWaveConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3MmWaveConfig"><code class="docutils literal notranslate"><span class="pre">NS3MmWaveConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3mmwavechannel">NS3MmWaveChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3MmWaveChannel"><code class="docutils literal notranslate"><span class="pre">NS3MmWaveChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3lenaconfig">NS3LenaConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3LenaConfig"><code class="docutils literal notranslate"><span class="pre">NS3LenaConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3lenachannel">NS3LenaChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3LenaChannel"><code class="docutils literal notranslate"><span class="pre">NS3LenaChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3wifimultiueconfig">NS3WifiMultiUEConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3WifiMultiUEConfig"><code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#make-multi-ue-wifi-factory">make_multi_ue_wifi_factory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.make_multi_ue_wifi_factory"><code class="docutils literal notranslate"><span class="pre">make_multi_ue_wifi_factory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3wifiuechannel">NS3WifiUEChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3WifiUEChannel"><code class="docutils literal notranslate"><span class="pre">NS3WifiUEChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="channels.html#ns3wifimultiuebackend">NS3WifiMultiUEBackend</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="channels.html#netrl.NS3WifiMultiUEBackend"><code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEBackend</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="buffers.html">ObservationBuffer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer.__init__"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer.add"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.add()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer.get"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer.get_padded"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.get_padded()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer.clear"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="buffers.html#netrl.ObservationBuffer.is_full"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.is_full</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="buffers.html#semantics">Semantics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/concepts.html">Architecture &amp; Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#system-overview">System overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#class-hierarchy">Class hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#timing-model">Timing model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#persisted-simulation-state">Persisted simulation state</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/concepts.html#warm-up-period">Warm-up period</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#gilbertelliott-channel-model">Gilbert–Elliott channel model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#ns-3-subprocess-protocol">ns-3 subprocess protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#observation-buffer-semantics">Observation buffer semantics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#strategy-pattern">Strategy pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#build-errors">Build errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#importerror-no-module-named-netcomm"><code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'netcomm'</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#filenotfounderror-ns3-wifi-sim-binary-not-found"><code class="docutils literal notranslate"><span class="pre">FileNotFoundError:</span> <span class="pre">ns3_wifi_sim</span> <span class="pre">binary</span> <span class="pre">not</span> <span class="pre">found</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#ns3-installation-not-found-build-script-error"><code class="docutils literal notranslate"><span class="pre">ns3</span> <span class="pre">installation</span> <span class="pre">not</span> <span class="pre">found</span></code> (build script error)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#runtime-errors">Runtime errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#runtimeerror-ns3-wifi-sim-did-not-emit-ready-within-30-s"><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">ns3_wifi_sim</span> <span class="pre">did</span> <span class="pre">not</span> <span class="pre">emit</span> <span class="pre">READY</span> <span class="pre">within</span> <span class="pre">30</span> <span class="pre">s</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#runtimeerror-subprocess-stdin-pipe-broken"><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">subprocess</span> <span class="pre">stdin</span> <span class="pre">pipe</span> <span class="pre">broken</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#timeouterror-no-response-within-n-s-flush"><code class="docutils literal notranslate"><span class="pre">TimeoutError:</span> <span class="pre">no</span> <span class="pre">response</span> <span class="pre">within</span> <span class="pre">N</span> <span class="pre">s</span> <span class="pre">(FLUSH)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#gechannel-throughput-is-much-higher-than-ns-3-backends"><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code> throughput is much higher than ns-3 backends</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#observations">Observations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#obs-recv-mask-is-all-false-for-many-steps"><code class="docutils literal notranslate"><span class="pre">obs[&quot;recv_mask&quot;]</span></code> is all <code class="docutils literal notranslate"><span class="pre">False</span></code> for many steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#obs-observations-contains-stale-data"><code class="docutils literal notranslate"><span class="pre">obs[&quot;observations&quot;]</span></code> contains stale data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#multi-ue-issues">Multi-UE issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#valueerror-factory-called-for-ue-index-n-but-n-ues-m"><code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">Factory</span> <span class="pre">called</span> <span class="pre">for</span> <span class="pre">UE</span> <span class="pre">index</span> <span class="pre">N</span> <span class="pre">but</span> <span class="pre">n_ues=M</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#some-ues-have-much-lower-packet-delivery-than-others">Some UEs have much lower packet delivery than others</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NetRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Environment Wrappers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/envs.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="environment-wrappers">
+<h1>Environment Wrappers<a class="headerlink" href="#environment-wrappers" title="Link to this heading"></a></h1>
+<nav class="contents local" id="on-this-page">
+<p class="topic-title">On this page</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#networkedenv" id="id1">NetworkedEnv</a></p></li>
+<li><p><a class="reference internal" href="#multiviewnetworkedenv" id="id2">MultiViewNetworkedEnv</a></p></li>
+</ul>
+</nav>
+<section id="networkedenv">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">NetworkedEnv</a><a class="headerlink" href="#networkedenv" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">netrl.</span></span><span class="sig-name descname"><span class="pre">NetworkedEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'agent_0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/networked_env.html#NetworkedEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.NetworkedEnv" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://gymnasium.farama.org/api/wrappers/#gymnasium.Wrapper" title="(in Gymnasium)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wrapper</span></code></a></p>
+<p>Gymnasium wrapper simulating networked observation transmission.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference external" href="https://gymnasium.farama.org/api/env/#gymnasium.Env" title="(in Gymnasium)"><em>gymnasium.Env</em></a>) – The base environment to wrap.  Must have a Box observation space.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.NetworkConfig"><em>NetworkConfig</em></a>) – Channel and buffer configuration.  For the Gilbert-Elliott backend
+this also carries the Markov-chain and loss parameters.  Validated
+on construction.</p></li>
+<li><p><strong>channel_config</strong> (<a class="reference internal" href="channels.html#netrl.NS3WifiConfig" title="netrl.NS3WifiConfig"><em>NS3WifiConfig</em></a><em> | </em><a class="reference internal" href="channels.html#netrl.NS3MmWaveConfig" title="netrl.NS3MmWaveConfig"><em>NS3MmWaveConfig</em></a><em> | </em><a class="reference internal" href="channels.html#netrl.NS3LenaConfig" title="netrl.NS3LenaConfig"><em>NS3LenaConfig</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – <p>Selects and configures the channel backend:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">None</span></code> (default)</dt><dd><p>Use the Gilbert-Elliott channel.  All GE parameters are taken
+from <cite>config</cite> (p_gb, p_bg, loss_good, loss_bad, delay_steps).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">NS3WifiConfig(...)</span></code></dt><dd><p>Use the ns-3 802.11a WiFi channel.  The binary
+<code class="docutils literal notranslate"><span class="pre">src/ns3_wifi_sim</span></code> must be built first
+(<code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">src/build_ns3_sim.sh</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">NS3MmWaveConfig(...)</span></code></dt><dd><p>Use the ns-3 5G mmWave EPC channel.  The binary
+<code class="docutils literal notranslate"><span class="pre">src/ns3_mmwave_sim</span></code> must be built first
+(<code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">src/build_ns3_mmwave_sim.sh</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">NS3LenaConfig(...)</span></code></dt><dd><p>Use the ns-3 5G-LENA NR EPC channel.  The binary
+<code class="docutils literal notranslate"><span class="pre">src/ns3_lena_sim</span></code> must be built first
+(<code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">src/build_ns3_lena_sim.sh</span></code>).</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>node_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Identifier for this agent’s transmission node.  Default “agent_0”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'agent_0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/networked_env.html#NetworkedEnv.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.NetworkedEnv.__init__" title="Link to this definition"></a></dt>
+<dd><p>Wraps an environment to allow a modular transformation of the <a class="reference internal" href="#netrl.NetworkedEnv.step" title="netrl.NetworkedEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">step()</span></code></a> and <a class="reference internal" href="#netrl.NetworkedEnv.reset" title="netrl.NetworkedEnv.reset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">reset()</span></code></a> methods.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>env: The environment to wrap</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference external" href="https://gymnasium.farama.org/api/env/#gymnasium.Env" title="(in Gymnasium)"><em>Env</em></a>)</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.channels.network_config.NetworkConfig"><em>NetworkConfig</em></a>)</p></li>
+<li><p><strong>channel_config</strong> (<a class="reference internal" href="channels.html#netrl.NS3WifiConfig" title="netrl.channels.ns3_wifi_config.NS3WifiConfig"><em>NS3WifiConfig</em></a><em> | </em><a class="reference internal" href="channels.html#netrl.NS3MmWaveConfig" title="netrl.channels.ns3_mmwave_config.NS3MmWaveConfig"><em>NS3MmWaveConfig</em></a><em> | </em><a class="reference internal" href="channels.html#netrl.NS3LenaConfig" title="netrl.channels.ns3_lena_config.NS3LenaConfig"><em>NS3LenaConfig</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>node_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/networked_env.html#NetworkedEnv.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.NetworkedEnv.reset" title="Link to this definition"></a></dt>
+<dd><p>Reset the wrapped environment and clear all channel / buffer state.</p>
+<p>Returns the initial Dict observation (all zeros, all recv_mask=False)
+because no observation has been transmitted or received yet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/networked_env.html#NetworkedEnv.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.NetworkedEnv.step" title="Link to this definition"></a></dt>
+<dd><p>Step the underlying environment and run the channel simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action</strong> (<em>Any           Action compatible with the wrapped env.</em>)</p></li>
+<li><p><strong>packet_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None    Payload bytes to use for the packet</em>) – transmitted this step.  None means use
+the channel’s own default (NS3WifiConfig.
+packet_size_bytes for the ns-3 backend,
+ignored for GE / Perfect channels).</p></li>
+<li><p><strong>step</strong> (<em>Sequence per</em>)</p></li>
+<li><p><strong>-----------------</strong></p></li>
+<li><p><strong>raw_obs</strong> (<em>1. env.step</em><em>(</em><em>action</em><em>)           </em><em>-&gt;</em>)</p></li>
+<li><p><strong>reward</strong></p></li>
+<li><p><strong>term</strong></p></li>
+<li><p><strong>trunc</strong></p></li>
+<li><p><strong>info</strong></p></li>
+<li><p><strong>channel</strong> (<em>2. central.receive_from</em><em>(</em><em>...</em><em>)  </em><em>-&gt; transmit through</em>)</p></li>
+<li><p><strong>None</strong><strong>)</strong> (<em>3. central.flush_and_update</em><em>(</em><em>) </em><em>-&gt; flush + buffer.add</em><em>(</em><em>obs or</em>)</p></li>
+<li><p><strong>1</strong> (<em>4. step_count  +=</em>)</p></li>
+<li><p><strong>(</strong><strong>obs_array</strong> (<em>5. buffer.get_padded</em><em>(</em><em>)        </em><em>-&gt;</em>)</p></li>
+<li><p><strong>recv_mask</strong><strong>)</strong></p></li>
+<li><p><strong>observation</strong> (<em>6. Return Dict</em>)</p></li>
+<li><p><strong>reward</strong></p></li>
+<li><p><strong>flags</strong></p></li>
+<li><p><strong>info.</strong> (<em>augmented</em>)</p></li>
+<li><p><strong>with</strong> (<em>The info dict is extended</em>) – “channel_info”      : dict from get_channel_info() (state, params…)
+“arrived_this_step” : bool, True if a packet arrived at this step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>], <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv.step_count">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">step_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#netrl.NetworkedEnv.step_count" title="Link to this definition"></a></dt>
+<dd><p>Current integer step counter (0-indexed; incremented after each step).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv.config">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.channels.network_config.NetworkConfig"><span class="pre">NetworkConfig</span></a></span><a class="headerlink" href="#netrl.NetworkedEnv.config" title="Link to this definition"></a></dt>
+<dd><p>The NetworkConfig used to configure this wrapper.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.NetworkedEnv.central_node">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">central_node</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="central_node.html#netrl.CentralNode" title="netrl.central_node.CentralNode"><span class="pre">CentralNode</span></a></span><a class="headerlink" href="#netrl.NetworkedEnv.central_node" title="Link to this definition"></a></dt>
+<dd><p>Direct access to the underlying CentralNode (for multi-agent use).</p>
+</dd></dl>
+
+</dd></dl>
+
+<p class="rubric">Observation space</p>
+<p>The original <code class="docutils literal notranslate"><span class="pre">Box(obs_shape)</span></code> is replaced with:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Dict({
+    &quot;observations&quot;: Box(shape=(buffer_size, *obs_shape), dtype=obs_dtype),
+    &quot;recv_mask&quot;:    MultiBinary(buffer_size),
+})
+</pre></div>
+</div>
+<p class="rubric">Extended <code class="docutils literal notranslate"><span class="pre">info</span></code> keys</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 68.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;channel_info&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> from <a class="reference internal" href="channels.html#netrl.CommChannel.get_channel_info" title="netrl.CommChannel.get_channel_info"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_channel_info()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;arrived_this_step&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code> — packet arrived this step.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<hr class="docutils" />
+<section id="multiviewnetworkedenv">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">MultiViewNetworkedEnv</a><a class="headerlink" href="#multiviewnetworkedenv" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">netrl.</span></span><span class="sig-name descname"><span class="pre">MultiViewNetworkedEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observer_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_view_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_factory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/multi_view_networked_env.html#MultiViewNetworkedEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.MultiViewNetworkedEnv" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://gymnasium.farama.org/api/wrappers/#gymnasium.Wrapper" title="(in Gymnasium)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wrapper</span></code></a></p>
+<p>Gymnasium wrapper with multiple observers and per-step transmission control.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference external" href="https://gymnasium.farama.org/api/env/#gymnasium.Env" title="(in Gymnasium)"><em>gymnasium.Env</em></a>) – The base environment.  Must have a <code class="docutils literal notranslate"><span class="pre">Box</span></code> observation space.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.NetworkConfig"><em>NetworkConfig</em></a>) – Shared channel and buffer configuration.  <code class="docutils literal notranslate"><span class="pre">buffer_size</span></code> applies to
+every observer’s buffer.  For GE channels, the Markov parameters are
+also read from here.  Call <code class="docutils literal notranslate"><span class="pre">config.validate()</span></code> before passing.</p></li>
+<li><p><strong>observer_ids</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Unique string identifier for each observer.  The length of this list
+determines the number of independent transmission paths.  These ids
+are also used as keys in the returned observation dict and in the
+<code class="docutils literal notranslate"><span class="pre">transmit_mask</span></code> / <code class="docutils literal notranslate"><span class="pre">packet_sizes</span></code> arguments of <code class="docutils literal notranslate"><span class="pre">step()</span></code>.</p></li>
+<li><p><strong>channel_factory</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.NetworkConfig"><em>NetworkConfig</em></a><em>]</em><em>, </em><a class="reference internal" href="channels.html#netrl.CommChannel" title="netrl.CommChannel"><em>CommChannel</em></a><em>]</em>) – <p>Called once per observer (in the order of observer_ids) during
+construction to create each observer’s CommChannel.  Choose from:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code></dt><dd><p>Independent Gilbert–Elliott channel per observer.  All GE
+parameters come from <code class="docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">PerfectChannel</span></code></dt><dd><p>Lossless zero-delay channel (useful for debugging).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">nc:</span> <span class="pre">NS3WifiChannel(nc,</span> <span class="pre">NS3WifiConfig(...))</span></code></dt><dd><p>Independent ns-3 802.11a WiFi subprocess per observer.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">make_multi_ue_wifi_factory(NS3WifiMultiUEConfig(...))</span></code></dt><dd><p><strong>Shared</strong> ns-3 infrastructure BSS for all observers.  All
+observers contend for the same wireless medium.  The factory
+must be created <em>before</em> passing it here, and
+<code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEConfig.n_ues</span></code> must equal <code class="docutils literal notranslate"><span class="pre">len(observer_ids)</span></code>.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>multi_view_model</strong> (<a class="reference internal" href="multi_view_model.html#netrl.MultiViewModel" title="netrl.MultiViewModel"><em>MultiViewModel</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Three observers sharing a single 802.11a WiFi channel:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkConfig</span><span class="p">,</span> <span class="n">MultiViewNetworkedEnv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NS3WifiMultiUEConfig</span><span class="p">,</span> <span class="n">make_multi_ue_wifi_factory</span>
+
+<span class="n">factory</span> <span class="o">=</span> <span class="n">make_multi_ue_wifi_factory</span><span class="p">(</span>
+    <span class="n">NS3WifiMultiUEConfig</span><span class="p">(</span>
+        <span class="n">n_ues</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">distances_m</span><span class="o">=</span><span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">],</span>
+        <span class="n">step_duration_ms</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">MultiViewNetworkedEnv</span><span class="p">(</span>
+    <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;CartPole-v1&quot;</span><span class="p">),</span>
+    <span class="n">NetworkConfig</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">observer_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;near&quot;</span><span class="p">,</span> <span class="s2">&quot;mid&quot;</span><span class="p">,</span> <span class="s2">&quot;far&quot;</span><span class="p">],</span>
+    <span class="n">channel_factory</span><span class="o">=</span><span class="n">factory</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="c1"># obs[&quot;near&quot;][&quot;observations&quot;].shape == (10, 4)</span>
+<span class="c1"># obs[&quot;near&quot;][&quot;recv_mask&quot;].shape    == (10,)</span>
+
+<span class="c1"># Step with all observers transmitting (default)</span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">trunc</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+<span class="c1"># Step: only &quot;near&quot; transmits, with 256 bytes</span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">trunc</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+    <span class="n">action</span><span class="p">,</span>
+    <span class="n">transmit_mask</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;near&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mid&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;far&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="n">packet_sizes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;near&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observer_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_view_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_factory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/multi_view_networked_env.html#MultiViewNetworkedEnv.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.__init__" title="Link to this definition"></a></dt>
+<dd><p>Wraps an environment to allow a modular transformation of the <a class="reference internal" href="#netrl.MultiViewNetworkedEnv.step" title="netrl.MultiViewNetworkedEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">step()</span></code></a> and <a class="reference internal" href="#netrl.MultiViewNetworkedEnv.reset" title="netrl.MultiViewNetworkedEnv.reset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">reset()</span></code></a> methods.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>env: The environment to wrap</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference external" href="https://gymnasium.farama.org/api/env/#gymnasium.Env" title="(in Gymnasium)"><em>Env</em></a>)</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.channels.network_config.NetworkConfig"><em>NetworkConfig</em></a>)</p></li>
+<li><p><strong>observer_ids</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+<li><p><strong>multi_view_model</strong> (<a class="reference internal" href="multi_view_model.html#netrl.MultiViewModel" title="netrl.utils.multi_view_model.MultiViewModel"><em>MultiViewModel</em></a>)</p></li>
+<li><p><strong>channel_factory</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.channels.network_config.NetworkConfig"><em>NetworkConfig</em></a><em>]</em><em>, </em><a class="reference internal" href="channels.html#netrl.CommChannel" title="netrl.channels.comm_channel.CommChannel"><em>CommChannel</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/multi_view_networked_env.html#MultiViewNetworkedEnv.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.reset" title="Link to this definition"></a></dt>
+<dd><p>Reset the wrapped environment and all channel / buffer state.</p>
+<p>Returns all-zeros observations with recv_mask=False for every observer
+because no transmission has occurred yet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>]], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmit_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/netrl/multi_view_networked_env.html#MultiViewNetworkedEnv.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.step" title="Link to this definition"></a></dt>
+<dd><p>Step the environment and run the multi-observer channel simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action</strong> (<em>Any</em>) – Action compatible with the wrapped environment.</p></li>
+<li><p><strong>transmit_mask</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) – <p>Controls which observers transmit this step.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">None</span></code> (default)</dt><dd><p>All observers transmit.</p>
+</dd>
+<dt>Dict mapping observer_id → bool</dt><dd><p>Only observers mapped to <code class="docutils literal notranslate"><span class="pre">True</span></code> transmit.
+Observers absent from the dict default to <code class="docutils literal notranslate"><span class="pre">True</span></code>
+(i.e. the mask is an opt-out, not opt-in).</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>packet_sizes</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) – <p>Per-observer payload in bytes for this step.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">None</span></code> (default)</dt><dd><p>Every transmitting observer uses its channel’s own default
+packet size (e.g. <code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEConfig.packet_size_bytes</span></code>).</p>
+</dd>
+<dt>Dict mapping observer_id → int</dt><dd><p>Overrides the packet size for the named observer.
+Absent observers use the channel default.</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>obs</strong> (<em>Dict[observer_id → Dict{“observations”, “recv_mask”}]</em>) – Observation buffers for all observers.</p></li>
+<li><p><strong>reward</strong> (<em>float</em>)</p></li>
+<li><p><strong>terminated</strong> (<em>bool</em>)</p></li>
+<li><p><strong>truncated</strong> (<em>bool</em>)</p></li>
+<li><p><strong>info</strong> (<em>dict</em>) – Extended with:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;channel_info&quot;</span></code></dt><dd><p>Dict[observer_id → channel diagnostic dict from
+CommChannel.get_channel_info()].</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;arrived_this_step&quot;</span></code></dt><dd><p>Dict[observer_id → bool] — True if a packet from that
+observer arrived at the AP during this step.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;transmitted_this_step&quot;</span></code></dt><dd><p>Dict[observer_id → bool] — True if that observer attempted
+to transmit this step (i.e. was not masked out).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>]], <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">flush_and_update</span></code> is called for <strong>all</strong> observers every step,
+regardless of <code class="docutils literal notranslate"><span class="pre">transmit_mask</span></code>.  This ensures every buffer advances
+by exactly one slot per step and that delayed packets from previous
+steps are still collected for silent observers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.step_count">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">step_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.step_count" title="Link to this definition"></a></dt>
+<dd><p>Current step counter (0-indexed; incremented after each step call).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.observer_ids">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">observer_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.observer_ids" title="Link to this definition"></a></dt>
+<dd><p>Ordered list of observer identifiers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.config">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="channels.html#netrl.NetworkConfig" title="netrl.channels.network_config.NetworkConfig"><span class="pre">NetworkConfig</span></a></span><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.config" title="Link to this definition"></a></dt>
+<dd><p>The NetworkConfig used to configure this wrapper.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="netrl.MultiViewNetworkedEnv.central_node">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">central_node</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="central_node.html#netrl.CentralNode" title="netrl.central_node.CentralNode"><span class="pre">CentralNode</span></a></span><a class="headerlink" href="#netrl.MultiViewNetworkedEnv.central_node" title="Link to this definition"></a></dt>
+<dd><p>Direct access to the underlying CentralNode.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p class="rubric">Observation space</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Dict({
+    &quot;&lt;observer_id&gt;&quot;: Dict({
+        &quot;observations&quot;: Box(shape=(buffer_size, *obs_shape_i), dtype=obs_dtype_i),
+        &quot;recv_mask&quot;:    MultiBinary(buffer_size),
+    }),
+    ...
+})
+</pre></div>
+</div>
+<p class="rubric">Extended <code class="docutils literal notranslate"><span class="pre">info</span></code> keys</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;channel_info&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Dict[observer_id</span> <span class="pre">→</span> <span class="pre">channel_info_dict]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;arrived_this_step&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Dict[observer_id</span> <span class="pre">→</span> <span class="pre">bool]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;transmitted_this_step&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Dict[observer_id</span> <span class="pre">→</span> <span class="pre">bool]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multi_view_model.html" class="btn btn-neutral float-right" title="MultiViewModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NetRL Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

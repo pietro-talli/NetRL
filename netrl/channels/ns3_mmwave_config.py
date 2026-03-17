@@ -34,17 +34,11 @@ class NS3MmWaveConfig:
         +--------+------------------+----------+
 
     bandwidth_ghz : float
-        Component carrier bandwidth in GHz.  Typical NR mmWave values:
-
-        +------------------+-------------------------------------------+
-        | Bandwidth (GHz)  | Peak PHY throughput @ 28 GHz, 64-QAM     |
-        +------------------+-------------------------------------------+
-        | 0.05   (50 MHz)  | ~350 Mbps                                 |
-        | 0.1   (100 MHz)  | ~700 Mbps                                 |
-        | 0.2   (200 MHz)  | ~ 1.4 Gbps                                |
-        | 0.4   (400 MHz)  | ~ 2.8 Gbps                                |
-        | 0.8   (800 MHz)  | ~ 5.6 Gbps                                |
-        +------------------+-------------------------------------------+
+        Component carrier bandwidth in GHz.  Typical NR mmWave values
+        and approximate peak PHY throughput at 28 GHz with 64-QAM:
+        0.05 GHz → ~350 Mbps, 0.1 GHz → ~700 Mbps,
+        0.2 GHz → ~1.4 Gbps, 0.4 GHz → ~2.8 Gbps,
+        0.8 GHz → ~5.6 Gbps.
 
     tx_power_dbm : float
         UE transmit power in dBm.  Typical 5G mmWave UE: 23 dBm.

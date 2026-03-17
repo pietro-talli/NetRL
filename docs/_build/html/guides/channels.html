@@ -1,0 +1,680 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choosing a Channel Backend &mdash; NetRL 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Writing a Custom Channel" href="custom_channel.html" />
+    <link rel="prev" title="Multi-View Environments" href="multi_view.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NetRL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#core-package">Core package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#ns-3-802-11a-wifi-backend">ns-3 802.11a WiFi backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#ns-3-5g-mmwave-backend">ns-3 5G mmWave backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#ns-3-5g-lena-nr-backend">ns-3 5G-LENA NR backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#multi-ue-wifi-backend">Multi-UE WiFi backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#development-extras">Development extras</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#single-observer">Single observer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#multiple-observers-multi-view">Multiple observers (multi-view)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#switching-to-a-realistic-ns-3-wifi-channel">Switching to a realistic ns-3 WiFi channel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="single_observer.html">Single-Observer Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#observation-space">Observation space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#per-step-sequence">Per-step sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#construction">Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#using-step">Using <code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#resetting">Resetting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#training-with-stable-baselines3">Training with Stable-Baselines3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_observer.html#parallel-environments">Parallel environments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multi_view.html">Multi-View Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#motivation">Motivation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#the-multiviewmodel-abstraction">The <code class="docutils literal notranslate"><span class="pre">MultiViewModel</span></code> abstraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#constructing-the-environment">Constructing the environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#observation-space">Observation space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#using-step">Using <code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#the-extended-info-dict">The extended <code class="docutils literal notranslate"><span class="pre">info</span></code> dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#using-a-shared-802-11a-wifi-channel">Using a shared 802.11a WiFi channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi_view.html#implementation-tips">Implementation tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Choosing a Channel Backend</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend-overview">Backend overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gilbertelliott-channel">Gilbert–Elliott channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#perfect-channel">Perfect channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ns-3-802-11a-wifi">ns-3 802.11a WiFi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ns-3-5g-mmwave">ns-3 5G mmWave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ns-3-5g-lena-nr">ns-3 5G-LENA NR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multi-ue-802-11a-wifi">Multi-UE 802.11a WiFi</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom_channel.html">Writing a Custom Channel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="custom_channel.html#the-commchannel-interface">The CommChannel interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_channel.html#minimal-example-bernoulli-channel">Minimal example: Bernoulli channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_channel.html#using-the-custom-channel">Using the custom channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_channel.html#subprocess-backed-channel">Subprocess-backed channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_channel.html#factory-pattern-for-shared-subprocesses">Factory pattern for shared subprocesses</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/envs.html">Environment Wrappers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/envs.html#networkedenv">NetworkedEnv</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/envs.html#netrl.NetworkedEnv"><code class="docutils literal notranslate"><span class="pre">NetworkedEnv</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/envs.html#multiviewnetworkedenv">MultiViewNetworkedEnv</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/envs.html#netrl.MultiViewNetworkedEnv"><code class="docutils literal notranslate"><span class="pre">MultiViewNetworkedEnv</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/multi_view_model.html">MultiViewModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/multi_view_model.html#netrl.MultiViewModel"><code class="docutils literal notranslate"><span class="pre">MultiViewModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/multi_view_model.html#netrl.MultiViewModel.__init__"><code class="docutils literal notranslate"><span class="pre">MultiViewModel.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/multi_view_model.html#netrl.MultiViewModel.observe"><code class="docutils literal notranslate"><span class="pre">MultiViewModel.observe()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/multi_view_model.html#usage-pattern">Usage pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/central_node.html">CentralNode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode"><code class="docutils literal notranslate"><span class="pre">CentralNode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.__init__"><code class="docutils literal notranslate"><span class="pre">CentralNode.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.receive_from"><code class="docutils literal notranslate"><span class="pre">CentralNode.receive_from()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.flush_and_update"><code class="docutils literal notranslate"><span class="pre">CentralNode.flush_and_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.get_buffer"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_buffer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.get_all_buffers"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_all_buffers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.get_channel_info"><code class="docutils literal notranslate"><span class="pre">CentralNode.get_channel_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.reset"><code class="docutils literal notranslate"><span class="pre">CentralNode.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.node_ids"><code class="docutils literal notranslate"><span class="pre">CentralNode.node_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/central_node.html#netrl.CentralNode.config"><code class="docutils literal notranslate"><span class="pre">CentralNode.config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/central_node.html#direct-usage-example">Direct usage example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/central_node.html#per-node-observation-shapes">Per-node observation shapes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/channels.html">Channels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#commchannel-abstract-base">CommChannel (abstract base)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.CommChannel"><code class="docutils literal notranslate"><span class="pre">CommChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#networkconfig">NetworkConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NetworkConfig"><code class="docutils literal notranslate"><span class="pre">NetworkConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#gechannel">GEChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.GEChannel"><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#perfectchannel">PerfectChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.PerfectChannel"><code class="docutils literal notranslate"><span class="pre">PerfectChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3wificonfig">NS3WifiConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3WifiConfig"><code class="docutils literal notranslate"><span class="pre">NS3WifiConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3wifichannel">NS3WifiChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3WifiChannel"><code class="docutils literal notranslate"><span class="pre">NS3WifiChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3mmwaveconfig">NS3MmWaveConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3MmWaveConfig"><code class="docutils literal notranslate"><span class="pre">NS3MmWaveConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3mmwavechannel">NS3MmWaveChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3MmWaveChannel"><code class="docutils literal notranslate"><span class="pre">NS3MmWaveChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3lenaconfig">NS3LenaConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3LenaConfig"><code class="docutils literal notranslate"><span class="pre">NS3LenaConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3lenachannel">NS3LenaChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3LenaChannel"><code class="docutils literal notranslate"><span class="pre">NS3LenaChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3wifimultiueconfig">NS3WifiMultiUEConfig</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3WifiMultiUEConfig"><code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#make-multi-ue-wifi-factory">make_multi_ue_wifi_factory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.make_multi_ue_wifi_factory"><code class="docutils literal notranslate"><span class="pre">make_multi_ue_wifi_factory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3wifiuechannel">NS3WifiUEChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3WifiUEChannel"><code class="docutils literal notranslate"><span class="pre">NS3WifiUEChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/channels.html#ns3wifimultiuebackend">NS3WifiMultiUEBackend</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/channels.html#netrl.NS3WifiMultiUEBackend"><code class="docutils literal notranslate"><span class="pre">NS3WifiMultiUEBackend</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/buffers.html">ObservationBuffer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer.__init__"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer.add"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.add()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer.get"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer.get_padded"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.get_padded()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer.clear"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/buffers.html#netrl.ObservationBuffer.is_full"><code class="docutils literal notranslate"><span class="pre">ObservationBuffer.is_full</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/buffers.html#semantics">Semantics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/concepts.html">Architecture &amp; Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#system-overview">System overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#class-hierarchy">Class hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#timing-model">Timing model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#persisted-simulation-state">Persisted simulation state</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/concepts.html#warm-up-period">Warm-up period</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#gilbertelliott-channel-model">Gilbert–Elliott channel model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#ns-3-subprocess-protocol">ns-3 subprocess protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#observation-buffer-semantics">Observation buffer semantics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/concepts.html#strategy-pattern">Strategy pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#build-errors">Build errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#importerror-no-module-named-netcomm"><code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'netcomm'</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#filenotfounderror-ns3-wifi-sim-binary-not-found"><code class="docutils literal notranslate"><span class="pre">FileNotFoundError:</span> <span class="pre">ns3_wifi_sim</span> <span class="pre">binary</span> <span class="pre">not</span> <span class="pre">found</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#ns3-installation-not-found-build-script-error"><code class="docutils literal notranslate"><span class="pre">ns3</span> <span class="pre">installation</span> <span class="pre">not</span> <span class="pre">found</span></code> (build script error)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#runtime-errors">Runtime errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#runtimeerror-ns3-wifi-sim-did-not-emit-ready-within-30-s"><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">ns3_wifi_sim</span> <span class="pre">did</span> <span class="pre">not</span> <span class="pre">emit</span> <span class="pre">READY</span> <span class="pre">within</span> <span class="pre">30</span> <span class="pre">s</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#runtimeerror-subprocess-stdin-pipe-broken"><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">subprocess</span> <span class="pre">stdin</span> <span class="pre">pipe</span> <span class="pre">broken</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#timeouterror-no-response-within-n-s-flush"><code class="docutils literal notranslate"><span class="pre">TimeoutError:</span> <span class="pre">no</span> <span class="pre">response</span> <span class="pre">within</span> <span class="pre">N</span> <span class="pre">s</span> <span class="pre">(FLUSH)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#gechannel-throughput-is-much-higher-than-ns-3-backends"><code class="docutils literal notranslate"><span class="pre">GEChannel</span></code> throughput is much higher than ns-3 backends</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#observations">Observations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#obs-recv-mask-is-all-false-for-many-steps"><code class="docutils literal notranslate"><span class="pre">obs[&quot;recv_mask&quot;]</span></code> is all <code class="docutils literal notranslate"><span class="pre">False</span></code> for many steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#obs-observations-contains-stale-data"><code class="docutils literal notranslate"><span class="pre">obs[&quot;observations&quot;]</span></code> contains stale data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/troubleshooting.html#multi-ue-issues">Multi-UE issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#valueerror-factory-called-for-ue-index-n-but-n-ues-m"><code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">Factory</span> <span class="pre">called</span> <span class="pre">for</span> <span class="pre">UE</span> <span class="pre">index</span> <span class="pre">N</span> <span class="pre">but</span> <span class="pre">n_ues=M</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/troubleshooting.html#some-ues-have-much-lower-packet-delivery-than-others">Some UEs have much lower packet delivery than others</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NetRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Guides</a></li>
+      <li class="breadcrumb-item active">Choosing a Channel Backend</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/channels.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="choosing-a-channel-backend">
+<h1>Choosing a Channel Backend<a class="headerlink" href="#choosing-a-channel-backend" title="Link to this heading"></a></h1>
+<p>NetRL ships with five channel backends.  All implement the same
+<a class="reference internal" href="../api/channels.html#netrl.CommChannel" title="netrl.CommChannel"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommChannel</span></code></a> interface, so you can swap channels without
+changing any other code.</p>
+<nav class="contents local" id="on-this-page">
+<p class="topic-title">On this page</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#backend-overview" id="id3">Backend overview</a></p></li>
+<li><p><a class="reference internal" href="#gilbertelliott-channel" id="id4">Gilbert–Elliott channel</a></p></li>
+<li><p><a class="reference internal" href="#perfect-channel" id="id5">Perfect channel</a></p></li>
+<li><p><a class="reference internal" href="#ns-3-802-11a-wifi" id="id6">ns-3 802.11a WiFi</a></p></li>
+<li><p><a class="reference internal" href="#ns-3-5g-mmwave" id="id7">ns-3 5G mmWave</a></p></li>
+<li><p><a class="reference internal" href="#ns-3-5g-lena-nr" id="id8">ns-3 5G-LENA NR</a></p></li>
+<li><p><a class="reference internal" href="#multi-ue-802-11a-wifi" id="id9">Multi-UE 802.11a WiFi</a></p></li>
+</ul>
+</nav>
+<section id="backend-overview">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Backend overview</a><a class="headerlink" href="#backend-overview" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 48.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Backend</p></th>
+<th class="head"><p>Requires</p></th>
+<th class="head"><p>Subprocess</p></th>
+<th class="head"><p>Best for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/channels.html#netrl.GEChannel" title="netrl.GEChannel"><code class="xref py py-class docutils literal notranslate"><span class="pre">GEChannel</span></code></a></p></td>
+<td><p>nothing</p></td>
+<td><p>no</p></td>
+<td><p>Fast baseline; prototyping; reproducible sweeps.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/channels.html#netrl.PerfectChannel" title="netrl.PerfectChannel"><code class="xref py py-class docutils literal notranslate"><span class="pre">PerfectChannel</span></code></a></p></td>
+<td><p>nothing</p></td>
+<td><p>no</p></td>
+<td><p>Debugging (no loss, no delay).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/channels.html#netrl.NS3WifiChannel" title="netrl.NS3WifiChannel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NS3WifiChannel</span></code></a></p></td>
+<td><p>ns-3 ≥ 3.43</p></td>
+<td><p>yes</p></td>
+<td><p>Realistic 802.11a single-link; variable distance, power, path-loss.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/channels.html#netrl.NS3MmWaveChannel" title="netrl.NS3MmWaveChannel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NS3MmWaveChannel</span></code></a></p></td>
+<td><p>ns3-mmwave</p></td>
+<td><p>yes</p></td>
+<td><p>5G mmWave (28 GHz) EPC; LOS/NLOS 3GPP TR 38.901 path-loss.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/channels.html#netrl.NS3LenaChannel" title="netrl.NS3LenaChannel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NS3LenaChannel</span></code></a></p></td>
+<td><p>5G-LENA ns-3</p></td>
+<td><p>yes</p></td>
+<td><p>5G NR with configurable numerology and NR beamforming.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Multi-UE WiFi</p></td>
+<td><p>ns-3 ≥ 3.43</p></td>
+<td><p>yes (shared)</p></td>
+<td><p>Multiple sensors contending for one 802.11a BSS; realistic CSMA/CA.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gilbertelliott-channel">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Gilbert–Elliott channel</a><a class="headerlink" href="#gilbertelliott-channel" title="Link to this heading"></a></h2>
+<p>The default backend.  A two-state Markov chain alternates between a
+<em>Good</em> state (low loss) and a <em>Bad</em> state (high loss).  Implemented in
+C++ via pybind11 for speed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkedEnv</span><span class="p">,</span> <span class="n">NetworkConfig</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">NetworkedEnv</span><span class="p">(</span>
+    <span class="n">base_env</span><span class="p">,</span>
+    <span class="n">NetworkConfig</span><span class="p">(</span>
+        <span class="n">p_gb</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>       <span class="c1"># Good → Bad transition probability per step</span>
+        <span class="n">p_bg</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>       <span class="c1"># Bad  → Good</span>
+        <span class="n">loss_good</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>  <span class="c1"># packet loss rate in Good state</span>
+        <span class="n">loss_bad</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span>   <span class="c1"># packet loss rate in Bad state</span>
+        <span class="n">delay_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>   <span class="c1"># fixed propagation delay (integer steps)</span>
+        <span class="n">buffer_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>All GE parameters, including delay and buffer size, come from
+<a class="reference internal" href="../api/channels.html#netrl.NetworkConfig" title="netrl.NetworkConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetworkConfig</span></code></a>.</p>
+</section>
+<section id="perfect-channel">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Perfect channel</a><a class="headerlink" href="#perfect-channel" title="Link to this heading"></a></h2>
+<p>Lossless, zero-delay channel useful for verifying that your RL logic
+is correct before adding network effects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkedEnv</span><span class="p">,</span> <span class="n">NetworkConfig</span><span class="p">,</span> <span class="n">PerfectChannel</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">NetworkedEnv</span><span class="p">(</span>
+    <span class="n">base_env</span><span class="p">,</span>
+    <span class="n">NetworkConfig</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">channel_factory</span><span class="o">=</span><span class="n">PerfectChannel</span><span class="p">,</span>   <span class="c1"># no channel_config needed</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using <a class="reference internal" href="../api/envs.html#netrl.NetworkedEnv" title="netrl.NetworkedEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetworkedEnv</span></code></a>, pass <code class="docutils literal notranslate"><span class="pre">channel_factory</span></code> directly.
+When using <a class="reference internal" href="../api/envs.html#netrl.MultiViewNetworkedEnv" title="netrl.MultiViewNetworkedEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiViewNetworkedEnv</span></code></a> or
+<a class="reference internal" href="../api/central_node.html#netrl.CentralNode" title="netrl.CentralNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentralNode</span></code></a>, pass the factory via the <code class="docutils literal notranslate"><span class="pre">channel_factory</span></code>
+parameter.</p>
+</div>
+</section>
+<section id="ns-3-802-11a-wifi">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">ns-3 802.11a WiFi</a><a class="headerlink" href="#ns-3-802-11a-wifi" title="Link to this heading"></a></h2>
+<p>A single-link 802.11a network between a station (STA) and an access point
+(AP).  Packet loss is determined by real CSMA/CA MAC behaviour under the
+configured path-loss model, not a stochastic approximation.</p>
+<p><strong>Build</strong> (once):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>src/build_ns3_sim.sh
+</pre></div>
+</div>
+<p><strong>Usage</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkedEnv</span><span class="p">,</span> <span class="n">NetworkConfig</span><span class="p">,</span> <span class="n">NS3WifiConfig</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">NetworkedEnv</span><span class="p">(</span>
+    <span class="n">base_env</span><span class="p">,</span>
+    <span class="n">NetworkConfig</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">channel_config</span><span class="o">=</span><span class="n">NS3WifiConfig</span><span class="p">(</span>
+        <span class="n">distance_m</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>         <span class="c1"># STA–AP distance (metres)</span>
+        <span class="n">step_duration_ms</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>    <span class="c1"># ns-3 time window per env step</span>
+        <span class="n">tx_power_dbm</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>       <span class="c1"># transmit power (dBm)</span>
+        <span class="n">loss_exponent</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>       <span class="c1"># log-distance path-loss exponent</span>
+        <span class="n">max_retries</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>           <span class="c1"># MAC retry limit</span>
+        <span class="n">packet_size_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>    <span class="c1"># default UDP payload (bytes)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">NS3WifiConfig reference</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 15.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distance_m</span></code></p></td>
+<td><p>10.0</p></td>
+<td><p>Euclidean distance from STA to AP in metres.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step_duration_ms</span></code></p></td>
+<td><p>1.0</p></td>
+<td><p>ns-3 simulation time allocated to each env step (ms).
+Increase for environments with coarse time steps.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tx_power_dbm</span></code></p></td>
+<td><p>20.0</p></td>
+<td><p>STA transmit power in dBm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">loss_exponent</span></code></p></td>
+<td><p>3.0</p></td>
+<td><p>Path-loss exponent: 2 = free-space, 3 = mixed, 4 = dense indoor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_retries</span></code></p></td>
+<td><p>7</p></td>
+<td><p>Maximum MAC frame retransmissions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packet_size_bytes</span></code></p></td>
+<td><p>64</p></td>
+<td><p>Default UDP payload; overridden per-step via <code class="docutils literal notranslate"><span class="pre">packet_size</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_pending_steps</span></code></p></td>
+<td><p>200</p></td>
+<td><p>Steps after which an unacknowledged packet is expired.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ns-3-5g-mmwave">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">ns-3 5G mmWave</a><a class="headerlink" href="#ns-3-5g-mmwave" title="Link to this heading"></a></h2>
+<p>Uses the ns3-mmwave fork to simulate a 5G EPC with mmWave PHY including
+LOS/NLOS switching and 3GPP TR 38.901 path-loss models.</p>
+<p><strong>Build</strong> (once):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>src/build_ns3_mmwave_sim.sh
+</pre></div>
+</div>
+<p><strong>Usage</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkedEnv</span><span class="p">,</span> <span class="n">NetworkConfig</span><span class="p">,</span> <span class="n">NS3MmWaveConfig</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">NetworkedEnv</span><span class="p">(</span>
+    <span class="n">base_env</span><span class="p">,</span>
+    <span class="n">NetworkConfig</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">channel_config</span><span class="o">=</span><span class="n">NS3MmWaveConfig</span><span class="p">(</span>
+        <span class="n">distance_m</span><span class="o">=</span><span class="mf">200.0</span><span class="p">,</span>
+        <span class="n">frequency_ghz</span><span class="o">=</span><span class="mf">28.0</span><span class="p">,</span>
+        <span class="n">bandwidth_ghz</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">step_duration_ms</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+        <span class="n">harq_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">rlc_am_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">scenario</span><span class="o">=</span><span class="s2">&quot;UMa&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The mmWave backend requires a <strong>500 ms warm-up</strong> for UE attachment and
+bearer establishment.  The subprocess prints <code class="docutils literal notranslate"><span class="pre">READY</span></code> only after this
+warm-up; the Python side waits up to 60 s.</p>
+</div>
+</section>
+<section id="ns-3-5g-lena-nr">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">ns-3 5G-LENA NR</a><a class="headerlink" href="#ns-3-5g-lena-nr" title="Link to this heading"></a></h2>
+<p>Uses the 5G-LENA contrib module for ns-3.  Supports configurable NR
+numerology (subcarrier spacing) and full NR beamforming.</p>
+<p><strong>Build</strong> (once):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>src/build_ns3_lena_sim.sh
+</pre></div>
+</div>
+<p><strong>Usage</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkedEnv</span><span class="p">,</span> <span class="n">NetworkConfig</span><span class="p">,</span> <span class="n">NS3LenaConfig</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">NetworkedEnv</span><span class="p">(</span>
+    <span class="n">base_env</span><span class="p">,</span>
+    <span class="n">NetworkConfig</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">channel_config</span><span class="o">=</span><span class="n">NS3LenaConfig</span><span class="p">(</span>
+        <span class="n">distance_m</span><span class="o">=</span><span class="mf">400.0</span><span class="p">,</span>
+        <span class="n">frequency_ghz</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+        <span class="n">bandwidth_ghz</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">numerology</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>         <span class="c1"># subcarrier spacing: 120 kHz</span>
+        <span class="n">scenario</span><span class="o">=</span><span class="s2">&quot;UMa&quot;</span><span class="p">,</span>
+        <span class="n">step_duration_ms</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+        <span class="n">shadowing_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-ue-802-11a-wifi">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Multi-UE 802.11a WiFi</a><a class="headerlink" href="#multi-ue-802-11a-wifi" title="Link to this heading"></a></h2>
+<p>A single ns-3 infrastructure BSS with N STAs sharing one AP.  All UEs
+contend for the same channel via CSMA/CA, modelling medium congestion.
+This backend is the natural choice for <a class="reference internal" href="../api/envs.html#netrl.MultiViewNetworkedEnv" title="netrl.MultiViewNetworkedEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiViewNetworkedEnv</span></code></a>.</p>
+<p><strong>Build</strong> (once):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>src/build_ns3_multi_ue_sim.sh
+</pre></div>
+</div>
+<p><strong>Usage</strong> with <code class="docutils literal notranslate"><span class="pre">MultiViewNetworkedEnv</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NetworkConfig</span><span class="p">,</span> <span class="n">MultiViewNetworkedEnv</span><span class="p">,</span>
+    <span class="n">NS3WifiMultiUEConfig</span><span class="p">,</span> <span class="n">make_multi_ue_wifi_factory</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">factory</span> <span class="o">=</span> <span class="n">make_multi_ue_wifi_factory</span><span class="p">(</span>
+    <span class="n">NS3WifiMultiUEConfig</span><span class="p">(</span>
+        <span class="n">n_ues</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">distances_m</span><span class="o">=</span><span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">],</span>
+        <span class="n">step_duration_ms</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">tx_power_dbm</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+        <span class="n">loss_exponent</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+        <span class="n">packet_size_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">MultiViewNetworkedEnv</span><span class="p">(</span>
+    <span class="n">base_env</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+    <span class="n">observer_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ue_0&quot;</span><span class="p">,</span> <span class="s2">&quot;ue_1&quot;</span><span class="p">,</span> <span class="s2">&quot;ue_2&quot;</span><span class="p">],</span>
+    <span class="n">multi_view_model</span><span class="o">=</span><span class="n">my_model</span><span class="p">,</span>
+    <span class="n">channel_factory</span><span class="o">=</span><span class="n">factory</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Direct usage with</strong> <code class="docutils literal notranslate"><span class="pre">CentralNode</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">CentralNode</span><span class="p">,</span> <span class="n">NetworkConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">NS3WifiMultiUEConfig</span><span class="p">,</span> <span class="n">make_multi_ue_wifi_factory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">factory</span> <span class="o">=</span> <span class="n">make_multi_ue_wifi_factory</span><span class="p">(</span>
+    <span class="n">NS3WifiMultiUEConfig</span><span class="p">(</span><span class="n">n_ues</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">distances_m</span><span class="o">=</span><span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">])</span>
+<span class="p">)</span>
+<span class="n">central</span> <span class="o">=</span> <span class="n">CentralNode</span><span class="p">(</span>
+    <span class="n">node_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ue_0&quot;</span><span class="p">,</span> <span class="s2">&quot;ue_1&quot;</span><span class="p">],</span>
+    <span class="n">obs_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,),</span>
+    <span class="n">obs_dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">NetworkConfig</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">channel_factory</span><span class="o">=</span><span class="n">factory</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">NS3WifiMultiUEConfig reference</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 15.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_ues</span></code></p></td>
+<td><p>2</p></td>
+<td><p>Number of UE nodes (STAs).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distances_m</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[10.0,</span> <span class="pre">10.0]</span></code></p></td>
+<td><p>Distance per UE to the AP.  Shorter list is extended by repeating last.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step_duration_ms</span></code></p></td>
+<td><p>1.0</p></td>
+<td><p>ns-3 time window per env step (ms).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tx_power_dbm</span></code></p></td>
+<td><p>20.0</p></td>
+<td><p>Transmit power of every STA (dBm).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">loss_exponent</span></code></p></td>
+<td><p>3.0</p></td>
+<td><p>Log-distance path-loss exponent.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_retries</span></code></p></td>
+<td><p>7</p></td>
+<td><p>MAC retry limit per frame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packet_size_bytes</span></code></p></td>
+<td><p>64</p></td>
+<td><p>Default UDP payload (bytes); minimum 8.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_pending_steps</span></code></p></td>
+<td><p>200</p></td>
+<td><p>Steps before an unacknowledged packet is expired.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="multi_view.html" class="btn btn-neutral float-left" title="Multi-View Environments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="custom_channel.html" class="btn btn-neutral float-right" title="Writing a Custom Channel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NetRL Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

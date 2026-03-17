@@ -29,8 +29,8 @@ class NS3WifiConfig:
         Transmit power of the STA in dBm.
 
     loss_exponent : float
-        Path-loss exponent n for the log-distance model:
-            PL(d) = PL_ref + 10 * n * log10(d / d_ref)
+        Path-loss exponent n for the log-distance model
+        (``PL(d) = PL_ref + 10*n*log10(d/d_ref)``).
         Typical values: 2 (free space), 3 (indoor/outdoor mixed),
         4 (dense indoor).
 
@@ -55,8 +55,7 @@ class NS3WifiConfig:
 
     sim_binary : str
         Path to the compiled ns3_wifi_sim binary.  If empty (default), the
-        channel auto-detects it relative to this file's location:
-            <project_root>/src/ns3_wifi_sim
+        channel auto-detects it at ``<project_root>/src/ns3_wifi_sim``.
     """
 
     # --- Physical layer ---

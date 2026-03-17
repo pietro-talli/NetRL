@@ -13,7 +13,7 @@ node index) and an independent observation buffer.
 from __future__ import annotations
 
 import copy
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from netrl.channels.comm_channel import CommChannel
@@ -29,25 +29,28 @@ class CentralNode:
     ----------
     node_ids        : List[str]
         Unique string identifiers for each distributed node (agent).
-    obs_shape       : List[tuple]
-        Shape of each observation (e.g. [(4,)] for CartPole).
-    obs_dtype       : List[np.dtype]
-        NumPy dtype of each observation (e.g. [np.float32]).
+    obs_shape       : tuple | List[tuple]
+        Shape of a single observation.  Pass a single ``tuple`` (e.g.
+        ``(4,)``) to use the same shape for every node, or a ``List[tuple]``
+        (one entry per node) to give each node its own observation shape.
+    obs_dtype       : dtype | List[dtype]
+        NumPy dtype of observations.  Same broadcast rules as ``obs_shape``:
+        a single value is applied to all nodes; a list assigns per-node.
     config          : NetworkConfig
         Channel + buffer configuration shared across all nodes.
-        Each node gets a copy with seed = config.seed + node_index so
+        Each node gets a copy with ``seed = config.seed + node_index`` so
         the per-node RNGs are independent.
     channel_factory : Callable[[NetworkConfig], CommChannel]
         Callable that takes a NetworkConfig and returns a CommChannel.
-        Defaults to GEChannel. Swap for PerfectChannel or NS3Channel without
-        changing this class.
+        Swap for PerfectChannel, NS3WifiChannel, or any custom channel
+        without changing this class.
     """
 
     def __init__(
         self,
         node_ids: List[str],
-        obs_shape: List[tuple],
-        obs_dtype: List[np.dtype],
+        obs_shape: Union[tuple, List[tuple]],
+        obs_dtype: Union[np.dtype, List[np.dtype]],
         config: NetworkConfig,
         channel_factory: Callable[[NetworkConfig], CommChannel],
     ) -> None:
@@ -57,13 +60,23 @@ class CentralNode:
         self._channels: Dict[str, CommChannel] = {}
         self._buffers: Dict[str, ObservationBuffer] = {}
 
+        # Normalize to per-node lists so the loop below is uniform.
+        obs_shapes: List[tuple] = (
+            obs_shape if isinstance(obs_shape, list)
+            else [obs_shape] * len(node_ids)
+        )
+        obs_dtypes: List = (
+            obs_dtype if isinstance(obs_dtype, list)
+            else [obs_dtype] * len(node_ids)
+        )
+
         for i, nid in enumerate(node_ids):
             node_cfg = copy.replace(config, seed=config.seed + i)
             self._channels[nid] = channel_factory(node_cfg)
             self._buffers[nid] = ObservationBuffer(
                 maxlen=config.buffer_size,
-                shape=obs_shape[i],
-                dtype=obs_dtype[i],
+                shape=obs_shapes[i],
+                dtype=obs_dtypes[i],
             )
 
     # -----------------------------------------------------------------------
@@ -125,8 +138,8 @@ class CentralNode:
         Return the padded (obs_array, recv_mask) for `node_id`.
 
         Shapes:
-            obs_array : (buffer_size, *obs_shape)
-            recv_mask : (buffer_size,)  dtype bool
+            obs_array : (buffer_size, ``*obs_shape``)
+            recv_mask : (buffer_size,) — dtype bool
 
         The most recent entry is at index [-1]; older entries are to the left.
         Unwritten slots are zeros with recv_mask = False.

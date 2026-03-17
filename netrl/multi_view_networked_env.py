@@ -192,12 +192,19 @@ class MultiViewNetworkedEnv(gym.Wrapper):
         )
 
         # Nested Dict observation space: observer → {observations, recv_mask}
+        # Shape is (buffer_size, *obs_shape) because the agent sees a sliding
+        # window of buffer_size delivery slots, not a single observation.
         self.observation_space = spaces.Dict({
             oid: spaces.Dict({
-                "observations": multi_view_model.spaces[oid],
+                "observations": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(config.buffer_size, *multi_view_model.obs_shapes[i]),
+                    dtype=multi_view_model.obs_dtypes[i],
+                ),
                 "recv_mask": spaces.MultiBinary(config.buffer_size),
             })
-            for oid in observer_ids
+            for i, oid in enumerate(observer_ids)
         })
 
         self._multi_view_model = multi_view_model
