@@ -59,6 +59,12 @@ from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
 from netrl.channels.ns3_mmwave_channel import NS3MmWaveChannel
 from netrl.channels.ns3_lena_config import NS3LenaConfig
 from netrl.channels.ns3_lena_channel import NS3LenaChannel
+from netrl.channels.ns3_wifi_multi_ue_config import NS3WifiMultiUEConfig
+from netrl.channels.ns3_multi_ue_channel import (
+    NS3WifiMultiUEBackend,
+    NS3WifiUEChannel,
+    make_multi_ue_wifi_factory,
+)
 
 __version__ = "0.2.0"
 
@@ -76,4 +82,9 @@ __all__ = [
     "NS3MmWaveChannel",
     "NS3LenaConfig",
     "NS3LenaChannel",
+    # Multi-UE WiFi
+    "NS3WifiMultiUEConfig",
+    "NS3WifiMultiUEBackend",
+    "NS3WifiUEChannel",
+    "make_multi_ue_wifi_factory",
 ]

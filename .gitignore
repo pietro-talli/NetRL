@@ -20,7 +20,7 @@ build_ns3/
 *.egg-info/
 
 .vscode/
-
+*_sim
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
