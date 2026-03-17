@@ -22,7 +22,7 @@ Install from source:
 
 .. code-block:: bash
 
-   git clone https://github.com/your-org/NetRL.git
+   git clone https://github.com/pietro-talli/NetRL.git
    cd NetRL
    pip install -e .
 
