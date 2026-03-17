@@ -29,10 +29,10 @@ class CentralNode:
     ----------
     node_ids        : List[str]
         Unique string identifiers for each distributed node (agent).
-    obs_shape       : tuple
-        Shape of a single observation (e.g. (4,) for CartPole).
-    obs_dtype
-        NumPy dtype of observations (e.g. np.float32).
+    obs_shape       : List[tuple]
+        Shape of each observation (e.g. [(4,)] for CartPole).
+    obs_dtype       : List[np.dtype]
+        NumPy dtype of each observation (e.g. [np.float32]).
     config          : NetworkConfig
         Channel + buffer configuration shared across all nodes.
         Each node gets a copy with seed = config.seed + node_index so
@@ -46,8 +46,8 @@ class CentralNode:
     def __init__(
         self,
         node_ids: List[str],
-        obs_shape: tuple,
-        obs_dtype,
+        obs_shape: List[tuple],
+        obs_dtype: List[np.dtype],
         config: NetworkConfig,
         channel_factory: Callable[[NetworkConfig], CommChannel],
     ) -> None:
@@ -62,8 +62,8 @@ class CentralNode:
             self._channels[nid] = channel_factory(node_cfg)
             self._buffers[nid] = ObservationBuffer(
                 maxlen=config.buffer_size,
-                shape=obs_shape,
-                dtype=obs_dtype,
+                shape=obs_shape[i],
+                dtype=obs_dtype[i],
             )
 
     # -----------------------------------------------------------------------

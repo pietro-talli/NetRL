@@ -53,6 +53,7 @@ from netrl.channels.network_config import NetworkConfig
 from netrl.channels.comm_channel import CommChannel, GEChannel, PerfectChannel
 from netrl.central_node import CentralNode
 from netrl.networked_env import NetworkedEnv
+from netrl.multi_view_networked_env import MultiViewNetworkedEnv
 from netrl.channels.ns3_wifi_config import NS3WifiConfig
 from netrl.channels.ns3_channel import NS3WifiChannel
 from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
@@ -65,6 +66,7 @@ from netrl.channels.ns3_multi_ue_channel import (
     NS3WifiUEChannel,
     make_multi_ue_wifi_factory,
 )
+from netrl.utils.multi_view_model import MultiViewModel
 
 __version__ = "0.2.0"
 
@@ -76,6 +78,7 @@ __all__ = [
     "PerfectChannel",
     "CentralNode",
     "NetworkedEnv",
+    "MultiViewNetworkedEnv",
     "NS3WifiConfig",
     "NS3WifiChannel",
     "NS3MmWaveConfig",
@@ -87,4 +90,5 @@ __all__ = [
     "NS3WifiMultiUEBackend",
     "NS3WifiUEChannel",
     "make_multi_ue_wifi_factory",
+    "MultiViewModel",
 ]
