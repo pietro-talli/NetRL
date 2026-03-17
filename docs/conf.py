@@ -11,8 +11,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # Project metadata
 # ---------------------------------------------------------------------------
 project   = "NetRL"
-copyright = "2024, NetRL Contributors"
-author    = "NetRL Contributors"
+copyright = "2026, Pietro Talli"
+author    = "Pietro Talli"
 release   = "0.2.0"
 version   = "0.2"
 
