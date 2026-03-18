@@ -37,7 +37,7 @@ class NetworkConfig:
     loss_bad: float = 0.20
     """Packet loss probability in the Bad state."""
 
-    delay_steps: int = 3
+    delay_steps: int = 0
     """Fixed one-way propagation delay expressed in environment steps."""
 
     # --- Observation buffer ---

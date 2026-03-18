@@ -13,7 +13,8 @@ net_env = NetworkedEnv(env,
                        channel_config=NS3MmWaveConfig(
                            distance_m=400,
                            frequency_ghz=6.0,
-                           step_duration_ms=20.0))
+                           step_duration_ms=20.0,
+                           rlc_am_enabled=True,))
 
 obs, info = net_env.reset()
 print(obs.keys())  # dict_keys(['observations', 'recv_mask'])
@@ -26,13 +27,13 @@ print(info["arrived_this_step"])            # True / False
 import time
 start_time = time.time()
 
-for i in range(1000):
+for i in range(100):
     obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample(), 
                                                   packet_size=256)
     if term or trunc:
         env.reset()
 
-print(f"FPS: {1000 / (time.time() - start_time):.2f}")
+print(f"FPS: {100 / (time.time() - start_time):.2f}")
 
 print(obs["recv_mask"])
 print(obs["observations"])

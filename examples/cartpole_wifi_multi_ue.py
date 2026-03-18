@@ -35,11 +35,11 @@ node_ids = [f"ue_{i}" for i in range(N_UES)]
 ns3_cfg = NS3WifiMultiUEConfig(
     n_ues=N_UES,
     distances_m=[10.0, 30.0, 50.0],   # UE 2 is far → more losses / retries
-    step_duration_ms=2.0,
+    step_duration_ms=20.0,
     tx_power_dbm=20.0,
     loss_exponent=3.0,
     max_retries=7,
-    packet_size_bytes=128,
+    packet_size_bytes=512,
 )
 
 # make_multi_ue_wifi_factory() starts the subprocess immediately and returns
@@ -74,7 +74,7 @@ central.reset()
 print(f"\nRunning {N_UES} UEs over shared 802.11a WiFi for 500 steps…\n")
 
 step = 0
-n_steps = 500
+n_steps = 1000
 arrived_counts = {nid: 0 for nid in node_ids}
 
 t0 = time.time()
