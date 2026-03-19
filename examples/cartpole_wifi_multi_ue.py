@@ -29,7 +29,7 @@ from netrl import NS3WifiMultiUEConfig, make_multi_ue_wifi_factory
 # ---------------------------------------------------------------------------
 # 1. Configure the multi-UE WiFi network
 # ---------------------------------------------------------------------------
-N_UES = 20
+N_UES = 5
 node_ids = [f"ue_{i}" for i in range(N_UES)]
 
 ns3_cfg = NS3WifiMultiUEConfig(

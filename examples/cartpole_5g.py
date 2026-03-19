@@ -11,10 +11,9 @@ config = NetworkConfig(
 net_env = NetworkedEnv(env, 
                        config, 
                        channel_config=NS3MmWaveConfig(
-                           distance_m=400,
-                           frequency_ghz=6.0,
-                           step_duration_ms=20.0,
-                           rlc_am_enabled=True,))
+                           distance_m=200,
+                           frequency_ghz=28.0,
+                           step_duration_ms=20.0))
 
 obs, info = net_env.reset()
 print(obs.keys())  # dict_keys(['observations', 'recv_mask'])
@@ -31,7 +30,7 @@ for i in range(100):
     obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample(), 
                                                   packet_size=256)
     if term or trunc:
-        env.reset()
+        net_env.reset()
 
 print(f"FPS: {100 / (time.time() - start_time):.2f}")
 

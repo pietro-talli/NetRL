@@ -30,7 +30,7 @@ start_time = time.time()
 
 for i in range(1000):
     obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample(), 
-                                                  packet_size=8000)
+                                                  packet_size=1024)
     if term or trunc:
         net_env.reset()
 

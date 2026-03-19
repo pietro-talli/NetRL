@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
             // The small per-UE offset avoids exact-simultaneous MAC contention
             // at the very start of each step while keeping all transmissions
             // well within the first 5% of the step.
-            double offsetFrac = 0.01 + ue_id * 0.002;
+            double offsetFrac = 0.0; // 0.01 + ue_id * 0.002; // TODO: Think about whether to re-enable this offset
             double sendAbsMs  = g_simStartMs + step_id * g_stepMs
                               + g_stepMs * offsetFrac;
             double nowMs      = Simulator::Now().GetMilliSeconds();

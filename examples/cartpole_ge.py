@@ -26,7 +26,7 @@ for i in range(1000):
     obs, reward, term, trunc, info = net_env.step(net_env.action_space.sample(), 
                                                   packet_size=256)
     if term or trunc:
-        env.reset()
+        net_env.reset()
 
 print(f"FPS: {1000 / (time.time() - start_time):.2f}")
 
