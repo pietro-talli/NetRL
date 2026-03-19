@@ -4,6 +4,7 @@ import gymnasium as gym
 env = gym.make("CartPole-v1")
 config = NetworkConfig(
     buffer_size=10,  # observation window length
+    delay_steps=2,
     seed=42,
 )
 

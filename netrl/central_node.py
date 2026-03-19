@@ -105,28 +105,47 @@ class CentralNode:
         Flush all channels for `step` and update each observation buffer.
 
         For each node:
-          - flush its channel to retrieve any packet due at this step,
-          - call buffer.add(obs) if a packet arrived, else buffer.add(None).
+          - flush its channel to retrieve all packets due at this step,
+          - add ALL packets to the buffer with their correct observation times
 
-        Invariant: exactly one buffer.add() call per node per step.
+        When a packet arrives at step S with delay_steps=D, the observation it
+        contains is from time step (S - D), so we add it with that step number.
+
+        With GEChannel (fixed delay): typically 0-1 packet per step
+        With NS3WifiChannel (variable delay): can be 0-N packets per step due to
+        retransmissions and variable latencies; we add all of them.
+
+        The arrived_map records the last packet that arrived for each node
+        (for backward compatibility and info reporting).
 
         Returns
         -------
         Dict[node_id -> obs | None]
-            The observation that arrived for each node this step, or None.
+            The last observation that arrived for each node this step, or None.
         """
         arrived_map: Dict[str, Optional[np.ndarray]] = {}
         for nid in self._node_ids:
             packets = self._channels[nid].flush(step)
+
+            last_obs = None
             if packets:
-                # With fixed delay, at most one packet arrives per step.
-                # If more arrive (variable delay / future ns3), take the last.
-                _, obs = packets[-1]
-                self._buffers[nid].add(obs)
-                arrived_map[nid] = obs
-            else:
-                self._buffers[nid].add(None)
-                arrived_map[nid] = None
+                # Add ALL packets to the buffer (important for NS3 which can have multiple)
+                for arrival_step, obs in packets:
+                    # Calculate which observation step this corresponds to
+                    obs_step = arrival_step - self._config.delay_steps
+                    self._buffers[nid].add(obs, obs_step)
+                    last_obs = obs  # Track the last one for arrived_map
+
+            # Always record a step entry to advance the time window
+            if not packets:
+                # No packet arrived this step, but mark it so buffer advances
+                self._buffers[nid].add(None, step)
+
+            # Ensure buffer is aware of current time
+            self._buffers[nid].current_step = max(self._buffers[nid].current_step, step)
+
+            arrived_map[nid] = last_obs
+
         return arrived_map
 
     # -----------------------------------------------------------------------

@@ -71,7 +71,7 @@ The ns-3 backend runs as a **persistent subprocess**. Compile it once before use
 bash src/build_ns3_sim.sh
 ```
 
-The script auto-detects your ns-3 installation, compiles `src/ns3_wifi_sim.cc`, and writes the binary to `src/ns3_wifi_sim`. See [Building the ns-3 WiFi Binary](#building-the-ns-3-wifi-binary) for full details.
+The script auto-detects your ns-3 installation, compiles `src/ns3_wifi_sim.cc`, and writes the binary to `src/ns3_wifi_sim`.
 
 ### 3. ns-3 5G mmWave binary
 
