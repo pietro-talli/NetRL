@@ -35,7 +35,7 @@ config = NetworkConfig(
     p_bg=0.40,         # Bad  → Good transition
     loss_good=0.02,    # 2 % loss in Good state
     loss_bad=0.30,     # 30 % loss in Bad state
-    delay_steps=2,     # 2-step propagation delay
+    delay_steps=0,     # 2-step propagation delay
     buffer_size=BUFFER_SIZE,
     seed=42,
 )

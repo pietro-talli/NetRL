@@ -29,17 +29,17 @@ from netrl import NS3WifiMultiUEConfig, make_multi_ue_wifi_factory
 # ---------------------------------------------------------------------------
 # 1. Configure the multi-UE WiFi network
 # ---------------------------------------------------------------------------
-N_UES = 3
+N_UES = 20
 node_ids = [f"ue_{i}" for i in range(N_UES)]
 
 ns3_cfg = NS3WifiMultiUEConfig(
     n_ues=N_UES,
-    distances_m=[10.0, 30.0, 50.0],   # UE 2 is far → more losses / retries
+    distances_m=[30.0] * N_UES,   # All UEs at 30 m → uniform losses / retries
     step_duration_ms=20.0,
     tx_power_dbm=20.0,
-    loss_exponent=3.0,
+    loss_exponent=3.4,
     max_retries=7,
-    packet_size_bytes=512,
+    packet_size_bytes=1000,
 )
 
 # make_multi_ue_wifi_factory() starts the subprocess immediately and returns
