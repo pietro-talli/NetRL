@@ -9,7 +9,7 @@ Requirements
 ------------
 
 * **Python** ≥ 3.10
-* **GCC** ≥ 10 or **Clang** ≥ 11 (for the C++ pybind11 extension)
+* **GCC** ≥ 10 or **Clang** ≥ 11 (C++20, for both pybind11 extensions)
 * **gymnasium** ≥ 0.29
 * **numpy** ≥ 1.24
 
@@ -26,9 +26,22 @@ Install from source:
    cd NetRL
    pip install -e .
 
-This builds the ``netcomm`` C++17 pybind11 extension (Gilbert–Elliott channel
-core) automatically via ``setup.py``.  No external simulator is needed for the
-default :class:`~netrl.GEChannel` backend.
+This does three things automatically:
+
+1. Installs all Python dependencies (including ``ns3 ≥ 3.44``).
+2. Compiles ``netcomm`` — the Gilbert–Elliott C++ pybind11 extension.
+3. Detects the pip-installed ``ns3`` library and compiles ``netrl_ext`` — the
+   **fast WiFi pybind11 extension** (:class:`~netrl.NS3WiFiChannelFast`).
+
+After this single command, both the default :class:`~netrl.GEChannel` backend
+and the fast :class:`~netrl.NS3WiFiChannelFast` backend are immediately
+available — no extra build step required.
+
+.. note::
+
+   If ``ns3`` is not found or cannot be detected at build time, ``netrl_ext``
+   is silently skipped and only ``netcomm`` is built.  Install ns3 later and
+   re-run ``pip install -e .`` or ``python setup.py build_ext --inplace``.
 
 Verify installation:
 
@@ -37,30 +50,52 @@ Verify installation:
    import netrl
    print(netrl.__version__)   # 0.2.0
 
-ns-3 802.11a WiFi backend
--------------------------
+ns-3 802.11a WiFi (fast — pybind11)
+------------------------------------
 
-Requires `ns-3 <https://www.nsnam.org>`_ ≥ 3.43 (pip-installable) **or** an
-ns3-mmwave source build.
+.. note::
 
-.. tab-set::
+   **No extra build step needed.**  The fast WiFi extension is compiled
+   automatically during ``pip install -e .`` (see above).
 
-   .. tab-item:: pip install (recommended)
+The fast backend runs the same 802.11a OFDM / CSMA/CA simulation as the
+subprocess version, but as a Python C++ extension linked directly into the
+interpreter process.  This eliminates subprocess-spawn and pipe-IPC overhead,
+giving 15–20× better throughput.
 
-      .. code-block:: bash
+.. code-block:: python
 
-         pip install ns3          # installs ns-3.44 or later
-         bash src/build_ns3_sim.sh
+   from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
 
-   .. tab-item:: ns3-mmwave source
+   env = NetworkedEnv(
+       base_env,
+       NetworkConfig(buffer_size=10, seed=42),
+       channel_config=NS3WiFiChannelFastConfig(
+           distance_m=20.0,
+           step_duration_ms=2.0,
+       ),
+   )
 
-      .. code-block:: bash
+Verify the extension was built:
 
-         # Build ns3-mmwave first (see ns3-mmwave docs)
-         # Then:
-         bash src/build_ns3_sim.sh
+.. code-block:: python
 
-Verify the binary:
+   import netrl_ext
+   print(netrl_ext.NS3WiFiChannel.__doc__)
+
+ns-3 802.11a WiFi backend (subprocess)
+---------------------------------------
+
+The subprocess ns-3 backend runs the simulation in a **separate process** and
+communicates over stdin/stdout pipes.  It is slower than the pybind11 fast
+backend but does not require a C++20 compiler beyond what ``pip install ns3``
+provides.  Compile the binary once before use:
+
+.. code-block:: bash
+
+   bash src/build_ns3_sim.sh
+
+Verify:
 
 .. code-block:: bash
 

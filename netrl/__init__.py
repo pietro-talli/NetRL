@@ -46,6 +46,22 @@ ns3 WiFi backend (realistic channel)
         )
 
     The simulation persists across steps and only resets on env.reset().
+
+ns3 WiFi backend (fast pybind11 binding - 15-20x faster!)
+-----------------------------------------------------------
+    Build the extension once:
+        bash build_pybind11.sh
+
+    Then select it via channel_config:
+        from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
+
+        env = NetworkedEnv(
+            gym.make("CartPole-v1"),
+            NetworkConfig(buffer_size=10),
+            channel_config=NS3WiFiChannelFastConfig(distance_m=15.0, step_duration_ms=2.0),
+        )
+
+    This uses direct C++ binding with no subprocess overhead!
 """
 
 from netrl.utils.observation_buffer import ObservationBuffer
@@ -56,6 +72,8 @@ from netrl.networked_env import NetworkedEnv
 from netrl.multi_view_networked_env import MultiViewNetworkedEnv
 from netrl.channels.ns3_wifi_config import NS3WifiConfig
 from netrl.channels.ns3_channel import NS3WifiChannel
+from netrl.channels.ns3_wifi_fast_config import NS3WiFiChannelFastConfig
+from netrl.channels.ns3_channel_fast import NS3WiFiChannelFast
 from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
 from netrl.channels.ns3_mmwave_channel import NS3MmWaveChannel
 from netrl.channels.ns3_lena_config import NS3LenaConfig
@@ -81,6 +99,8 @@ __all__ = [
     "MultiViewNetworkedEnv",
     "NS3WifiConfig",
     "NS3WifiChannel",
+    "NS3WiFiChannelFastConfig",
+    "NS3WiFiChannelFast",
     "NS3MmWaveConfig",
     "NS3MmWaveChannel",
     "NS3LenaConfig",

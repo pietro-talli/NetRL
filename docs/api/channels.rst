@@ -68,6 +68,22 @@ PerfectChannel
 
 ----
 
+NS3WiFiChannelFastConfig
+------------------------
+
+.. autoclass:: netrl.NS3WiFiChannelFastConfig
+   :members:
+   :show-inheritance:
+
+NS3WiFiChannelFast
+------------------
+
+.. autoclass:: netrl.NS3WiFiChannelFast
+   :members:
+   :show-inheritance:
+
+----
+
 NS3WifiConfig
 -------------
 

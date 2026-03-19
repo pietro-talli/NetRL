@@ -16,6 +16,7 @@
 ns3_wifi_sim
 
 build/
+build_pybind11/
 build_ns3/
 *.egg-info/
 

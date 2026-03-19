@@ -57,6 +57,7 @@ Class hierarchy
    CommChannel  (ABC)
    ├── GEChannel           — Markov chain; C++ core (netcomm extension)
    ├── PerfectChannel      — lossless; zero-delay
+   ├── NS3WiFiChannelFast  — 802.11a ad-hoc; pybind11 in-process (netrl_ext)
    ├── NS3WifiChannel      — 802.11a ad-hoc; ns-3 subprocess
    ├── NS3MmWaveChannel    — 5G mmWave EPC; ns-3 subprocess
    ├── NS3LenaChannel      — 5G NR; ns-3 subprocess
@@ -92,8 +93,11 @@ all packets whose ``arrival_step ≤ step`` from an in-memory deque.
 Persisted simulation state
 --------------------------
 
-The ns-3 subprocess runs *continuously* across steps.  ``Simulator::Run()``
-is called once per ``FLUSH`` with an increasing stop-time.  This means:
+The ns-3 subprocess backends run *continuously* across steps.
+``Simulator::Run()`` is called once per ``FLUSH`` with an increasing
+stop-time.  The pybind11 fast backend (:class:`~netrl.NS3WiFiChannelFast`)
+operates in the same way — the same NS3 simulator object lives inside the
+Python process and is advanced in-place each step.  In both cases:
 
 * MAC backoff counters, retry queues, and association state persist between steps.
 * A ``RESET`` (triggered by ``env.reset()``) calls ``Simulator::Destroy()``

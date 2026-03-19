@@ -28,6 +28,10 @@ Backend overview
      - nothing
      - no
      - Debugging (no loss, no delay).
+   * - :class:`~netrl.NS3WiFiChannelFast` ⚡
+     - ``pip install ns3``
+     - no
+     - 802.11a single-link; **15–20× faster** than subprocess; built automatically.
    * - :class:`~netrl.NS3WifiChannel`
      - ns-3 ≥ 3.43
      - yes
@@ -95,8 +99,64 @@ is correct before adding network effects:
    :class:`~netrl.CentralNode`, pass the factory via the ``channel_factory``
    parameter.
 
-ns-3 802.11a WiFi
------------------
+ns-3 802.11a WiFi (fast — pybind11) ⚡
+--------------------------------------
+
+The recommended 802.11a backend.  Runs the same OFDM / CSMA/CA simulation as
+the subprocess version but as a Python C++ extension linked directly into the
+interpreter process — eliminating subprocess spawn and pipe-IPC overhead
+entirely.
+
+**No build step needed** — the extension is compiled automatically by
+``pip install -e .`` when ``ns3`` is pip-installed.
+
+**Usage**:
+
+.. code-block:: python
+
+   from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
+
+   env = NetworkedEnv(
+       base_env,
+       NetworkConfig(buffer_size=10, seed=42),
+       channel_config=NS3WiFiChannelFastConfig(
+           distance_m=30.0,         # STA–AP distance (metres)
+           step_duration_ms=2.0,    # ns-3 time window per env step
+           tx_power_dbm=20.0,       # transmit power (dBm)
+           loss_exponent=3.0,       # log-distance path-loss exponent
+           max_retries=7,           # MAC retry limit
+           packet_size_bytes=64,    # default UDP payload (bytes)
+       ),
+   )
+
+.. list-table:: NS3WiFiChannelFastConfig reference
+   :header-rows: 1
+   :widths: 30 15 55
+
+   * - Parameter
+     - Default
+     - Description
+   * - ``distance_m``
+     - 10.0
+     - Euclidean distance from STA to AP in metres.
+   * - ``step_duration_ms``
+     - 1.0
+     - ns-3 simulation time allocated to each env step (ms).
+   * - ``tx_power_dbm``
+     - 20.0
+     - STA transmit power in dBm.
+   * - ``loss_exponent``
+     - 3.0
+     - Path-loss exponent: 2 = free-space, 3 = mixed, 4 = dense indoor.
+   * - ``max_retries``
+     - 7
+     - Maximum MAC frame retransmissions.
+   * - ``packet_size_bytes``
+     - 64
+     - UDP payload size in bytes.
+
+ns-3 802.11a WiFi (subprocess)
+-------------------------------
 
 A single-link 802.11a network between a station (STA) and an access point
 (AP).  Packet loss is determined by real CSMA/CA MAC behaviour under the

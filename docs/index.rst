@@ -63,6 +63,11 @@ Channel backends
    * - Gilbert–Elliott (default)
      - :class:`~netrl.GEChannel`
      - Two-state Markov loss model, C++ core, no external dependencies.
+   * - 802.11a WiFi ⚡ **(fast)**
+     - :class:`~netrl.NS3WiFiChannelFast`
+     - Same CSMA/CA physics as below but runs **in-process** via a pybind11
+       C++ extension — no subprocess, no pipe IPC.  Built automatically by
+       ``pip install -e .`` when ``ns3`` is pip-installed.  15–20× faster.
    * - 802.11a WiFi
      - :class:`~netrl.NS3WifiChannel`
      - CSMA/CA MAC, log-distance path loss, via ns-3 subprocess.

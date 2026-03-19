@@ -4,14 +4,17 @@ NetRL wraps any [Gymnasium](https://gymnasium.farama.org/) environment and simul
 
 Full documentation: https://netrl.readthedocs.io/en/latest/index.html
 
-Three channel backends are available:
+Four channel backends are available:
 
-| Backend | Model | Config class |
-|---|---|---|
-| **Gilbert-Elliott** (default) | Two-state Markov chain with configurable loss per state and fixed delay | `NetworkConfig` |
-| **ns-3 802.11a WiFi** | Full MAC/PHY simulation via ns-3 — CSMA/CA, retransmissions, path-loss | `NS3WifiConfig` |
-| **ns-3 5G mmWave** | Full EPC/NR simulation via ns-3-mmwave — 3GPP TR 38.901 path-loss, HARQ, RLC | `NS3MmWaveConfig` |
-| **ns-3 5G-LENA NR** | Full NR + EPC simulation via 5G-LENA (contrib/nr) — 3GPP channel, beamforming, numerology | `NS3LenaConfig` |
+| Backend | Model | Config class | Requires |
+|---|---|---|---|
+| **Gilbert-Elliott** (default) | Two-state Markov chain with configurable loss per state and fixed delay | `NetworkConfig` | Built-in |
+| **ns-3 802.11a WiFi (fast)** ⚡ | Full MAC/PHY simulation via ns-3 — same physics as below but compiled as a Python C++ extension (pybind11), **no subprocess overhead** | `NS3WiFiChannelFastConfig` | `pip install ns3` — built automatically |
+| **ns-3 802.11a WiFi** | Full MAC/PHY simulation via ns-3 — CSMA/CA, retransmissions, path-loss | `NS3WifiConfig` | `pip install ns3` + manual binary build |
+| **ns-3 5G mmWave** | Full EPC/NR simulation via ns-3-mmwave — 3GPP TR 38.901 path-loss, HARQ, RLC | `NS3MmWaveConfig` | ns-3-mmwave source build |
+| **ns-3 5G-LENA NR** | Full NR + EPC simulation via 5G-LENA (contrib/nr) — 3GPP channel, beamforming, numerology | `NS3LenaConfig` | 5G-LENA source build |
+
+> **Recommendation:** Use `NS3WiFiChannelFastConfig` for all 802.11a WiFi experiments. It provides identical physical simulation to `NS3WifiConfig` but runs **15–20× faster** by eliminating subprocess IPC overhead — and it is compiled automatically when you run `pip install -e .`.
 
 ---
 
@@ -19,13 +22,14 @@ Three channel backends are available:
 
 1. [Requirements](#requirements)
 2. [Installation](#installation)
-   - [Python package and GE channel (pybind11)](#1-python-package-and-ge-channel-pybind11)
-   - [ns-3 WiFi binary](#2-ns-3-wifi-binary)
+   - [Python package, GE channel, and fast WiFi channel](#1-python-package-ge-channel-and-fast-wifi-channel)
+   - [ns-3 WiFi binary (subprocess version)](#2-ns-3-wifi-binary-subprocess-version)
    - [ns-3 5G mmWave binary](#3-ns-3-5g-mmwave-binary)
     - [ns-3 5G-LENA binary](#4-ns-3-5g-lena-binary)
 3. [Quick Start](#quick-start)
    - [Gilbert-Elliott channel](#gilbert-elliott-channel)
-   - [ns-3 WiFi channel](#ns-3-wifi-channel)
+   - [ns-3 WiFi channel (fast — recommended)](#ns-3-wifi-channel-fast--recommended)
+   - [ns-3 WiFi channel (subprocess)](#ns-3-wifi-channel-subprocess)
    - [ns-3 5G mmWave channel](#ns-3-5g-mmwave-channel)
     - [ns-3 5G-LENA channel](#ns-3-5g-lena-channel)
 4. [Observation Space](#observation-space)
@@ -36,36 +40,47 @@ Three channel backends are available:
 
 - Python ≥ 3.10
 - GCC ≥ 10 or Clang ≥ 11
-  - C++17 for the pybind11 extension and the ns-3 WiFi binary (pip ns-3 ≥ 3.43 only)
+  - C++20 for the pybind11 extensions (`netcomm` GE channel and `netrl_ext` fast WiFi channel)
   - **C++20** for the ns-3 mmWave binary (ns-3-mmwave 3.42 uses `std::remove_cvref_t`)
-- One of:
-  - `pip install ns3` (ns-3 ≥ 3.43, headers + shared libs) — for the WiFi backend
-  - A compiled **ns-3-mmwave** source build at `/path/to/ns3-mmwave/build` (ns-3 3.42) — required for the 5G mmWave backend
+- For the fast WiFi channel and the subprocess WiFi channel:
+  - `pip install ns3` (ns-3 ≥ 3.43, headers + shared libs) — the **fast WiFi channel is built automatically** during `pip install -e .`
+- For the 5G mmWave channel:
+  - A compiled **ns-3-mmwave** source build at `/path/to/ns3-mmwave/build` (ns-3 3.42)
 
 ---
 
 ## Installation
 
-### 1. Python package and GE channel (pybind11)
+### 1. Python package, GE channel, and fast WiFi channel
 
-The Gilbert-Elliott channel is implemented as a C++ pybind11 extension (`netcomm`). Install it together with the Python package:
+The Gilbert-Elliott channel (`netcomm`) and the fast ns-3 WiFi channel (`netrl_ext`) are both compiled as C++ pybind11 extensions. Install everything with a single command:
 
 ```bash
-pip install pybind11 numpy gymnasium
 pip install -e .
 ```
 
-This builds `netcomm.cpython-*.so` in place and installs the `netrl` package in editable mode. To build the extension in-place without installing:
+This automatically:
+1. Installs all Python dependencies (including `ns3 ≥ 3.44`)
+2. Compiles `netcomm` — the Gilbert-Elliott C++ backend
+3. Detects the pip-installed `ns3` library and **compiles `netrl_ext`** — the fast WiFi pybind11 binding
+
+The fast WiFi channel (`NS3WiFiChannelFastConfig`) is then immediately available — no extra build step required.
+
+```python
+from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
+```
+
+> If `ns3` is not installed or cannot be detected, `netrl_ext` is silently skipped and only `netcomm` is built. You can still install ns3 later and rebuild with `pip install -e .` or `python setup.py build_ext --inplace`.
+
+To build extensions in-place without installing:
 
 ```bash
 python setup.py build_ext --inplace
 ```
 
-> The GE channel (default backend) requires this step. The `PerfectChannel` baseline does **not**.
+### 2. ns-3 WiFi binary (subprocess version)
 
-### 2. ns-3 WiFi binary
-
-The ns-3 backend runs as a **persistent subprocess**. Compile it once before use:
+The subprocess ns-3 backend runs the simulation in a **separate process** and communicates via stdin/stdout pipes. It is slower than the fast pybind11 channel but requires no C++20 compiler.  Compile the binary once before use:
 
 ```bash
 bash src/build_ns3_sim.sh
@@ -81,7 +96,7 @@ The mmWave backend requires a separate binary built against [ns-3-mmwave](https:
 bash src/build_ns3_mmwave_sim.sh
 ```
 
-The script expects ns-3-mmwave to be built at `/home/dianalab/Projects/ns3-mmwave/build` (edit the `NS3_MMWAVE_BUILD` variable at the top of the script to change the path). See [Building the ns-3 5G mmWave Binary](#building-the-ns-3-5g-mmwave-binary) for full details.
+The script expects ns-3-mmwave to be built at `/home/dianalab/Projects/ns3-mmwave/build` (edit the `NS3_MMWAVE_BUILD` variable at the top of the script to change the path).
 
 ### 4. ns-3 5G-LENA binary
 
@@ -132,7 +147,39 @@ for _ in range(1000):
         obs, info = env.reset()
 ```
 
-### ns-3 WiFi channel
+### ns-3 WiFi channel (fast — recommended)
+
+The fast WiFi channel runs the same 802.11a OFDM simulation as the subprocess version but as an **in-process C++ binding** — eliminating subprocess spawn and pipe IPC overhead entirely.
+
+```python
+import gymnasium as gym
+from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
+
+env = NetworkedEnv(
+    gym.make("CartPole-v1"),
+    NetworkConfig(buffer_size=10, seed=42),
+    channel_config=NS3WiFiChannelFastConfig(
+        distance_m=20.0,         # STA-to-AP distance
+        step_duration_ms=5.0,    # 5 ms of ns-3 time per env step
+        tx_power_dbm=20.0,
+        loss_exponent=3.0,
+        max_retries=7,
+        packet_size_bytes=256,
+    ),
+)
+
+obs, info = env.reset()
+
+for _ in range(1000):
+    obs, reward, term, trunc, info = env.step(env.action_space.sample())
+    print(info["channel_info"]["state"])   # "NS3_WIFI"
+    if term or trunc:
+        obs, info = env.reset()
+```
+
+> **No subprocess, no binary to build.** The `netrl_ext` extension is compiled automatically during `pip install -e .` and linked directly into the Python process.  Performance is **15–20× faster** than the subprocess variant, with lower memory usage and instant startup.
+
+### ns-3 WiFi channel (subprocess)
 
 ```python
 import gymnasium as gym
@@ -251,6 +298,8 @@ The `info` dict returned by `step()` is augmented with:
 | `"arrived_this_step"` | `bool` | `True` if at least one packet arrived during this step |
 
 **GE `channel_info` keys:** `state` (`"GOOD"` / `"BAD"`), `pending_count`
+
+**ns-3 fast WiFi `channel_info` keys:** `state` (`"NS3_WIFI"`), `distance_m`, `step_duration_ms`, `tx_power_dbm`, `loss_exponent`, `max_retries`, `packet_size_bytes`, `pending_tx_count`, `pending_rx_count`
 
 **ns-3 WiFi `channel_info` keys:** `state` (`"NS3_WIFI"`), `pending_count`, `arrived_buffered`, `distance_m`, `step_duration_ms`, `tx_power_dbm`, `loss_exponent`, `max_retries`
 

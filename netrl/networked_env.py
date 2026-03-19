@@ -58,6 +58,8 @@ from netrl.channels.comm_channel import CommChannel, GEChannel
 from netrl.channels.network_config import NetworkConfig
 from netrl.channels.ns3_wifi_config import NS3WifiConfig
 from netrl.channels.ns3_channel import NS3WifiChannel
+from netrl.channels.ns3_wifi_fast_config import NS3WiFiChannelFastConfig
+from netrl.channels.ns3_channel_fast import NS3WiFiChannelFast
 from netrl.channels.ns3_mmwave_config import NS3MmWaveConfig
 from netrl.channels.ns3_mmwave_channel import NS3MmWaveChannel
 from netrl.channels.ns3_lena_config import NS3LenaConfig
@@ -76,7 +78,7 @@ class NetworkedEnv(gym.Wrapper):
         Channel and buffer configuration.  For the Gilbert-Elliott backend
         this also carries the Markov-chain and loss parameters.  Validated
         on construction.
-    channel_config : NS3WifiConfig | NS3MmWaveConfig | NS3LenaConfig | None, optional
+    channel_config : NS3WifiConfig | NS3WiFiChannelFastConfig | NS3MmWaveConfig | NS3LenaConfig | None, optional
         Selects and configures the channel backend:
 
         ``None`` (default)
@@ -84,9 +86,14 @@ class NetworkedEnv(gym.Wrapper):
             from `config` (p_gb, p_bg, loss_good, loss_bad, delay_steps).
 
         ``NS3WifiConfig(...)``
-            Use the ns-3 802.11a WiFi channel.  The binary
+            Use the ns-3 802.11a WiFi channel (subprocess-based).  The binary
             ``src/ns3_wifi_sim`` must be built first
             (``bash src/build_ns3_sim.sh``).
+
+        ``NS3WiFiChannelFastConfig(...)``
+            Use the ns-3 802.11a WiFi channel (pybind11 fast binding, 15-20x faster).
+            The pybind11 extension must be built first
+            (``bash build_pybind11.sh``).
 
         ``NS3MmWaveConfig(...)``
             Use the ns-3 5G mmWave EPC channel.  The binary
@@ -128,6 +135,17 @@ class NetworkedEnv(gym.Wrapper):
         elif isinstance(channel_config, NS3WifiConfig):
             _ns3 = channel_config
             channel_factory = lambda node_cfg: NS3WifiChannel(node_cfg, _ns3)  # noqa: E731
+        elif isinstance(channel_config, NS3WiFiChannelFastConfig):
+            _fast = channel_config
+            channel_factory = lambda node_cfg: NS3WiFiChannelFast(  # noqa: E731
+                config=node_cfg,
+                distance_m=_fast.distance_m,
+                step_duration_ms=_fast.step_duration_ms,
+                tx_power_dbm=_fast.tx_power_dbm,
+                loss_exponent=_fast.loss_exponent,
+                max_retries=_fast.max_retries,
+                packet_size_bytes=_fast.packet_size_bytes,
+            )
         elif isinstance(channel_config, NS3MmWaveConfig):
             _mmw = channel_config
             channel_factory = lambda node_cfg: NS3MmWaveChannel(node_cfg, _mmw)  # noqa: E731
@@ -136,7 +154,7 @@ class NetworkedEnv(gym.Wrapper):
             channel_factory = lambda node_cfg: NS3LenaChannel(node_cfg, _lena)  # noqa: E731
         else:
             raise TypeError(
-                f"channel_config must be an NS3WifiConfig, NS3MmWaveConfig, NS3LenaConfig, or None, "
+                f"channel_config must be an NS3WifiConfig, NS3WiFiChannelFastConfig, NS3MmWaveConfig, NS3LenaConfig, or None, "
                 f"got {type(channel_config).__name__}."
             )
 

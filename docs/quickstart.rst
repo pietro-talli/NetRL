@@ -91,8 +91,40 @@ their own (possibly different-shaped) observations to a central node.
    print(info["transmitted_this_step"])   # {"lidar": True, "camera": False}
    print(info["arrived_this_step"])       # {"lidar": True/False, "camera": False}
 
-Switching to a realistic ns-3 WiFi channel
--------------------------------------------
+Switching to the fast ns-3 WiFi channel
+-----------------------------------------
+
+The recommended 802.11a backend runs entirely **in-process** — no subprocess to
+build, no pipe overhead.  It is compiled automatically by ``pip install -e .``
+when ``ns3`` is pip-installed.
+
+.. code-block:: python
+
+   from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
+
+   env = NetworkedEnv(
+       gym.make("CartPole-v1"),
+       NetworkConfig(buffer_size=10, seed=42),
+       channel_config=NS3WiFiChannelFastConfig(
+           distance_m=30.0,
+           step_duration_ms=2.0,
+           tx_power_dbm=20.0,
+           loss_exponent=3.0,
+       ),
+   )
+
+   obs, info = env.reset()
+
+   for _ in range(1000):
+       obs, reward, term, trunc, info = env.step(env.action_space.sample())
+       if term or trunc:
+           obs, info = env.reset()
+
+The simulation state (MAC buffers, backoff counters) persists across steps,
+giving temporally correlated, realistic channel behaviour.
+
+Switching to the ns-3 WiFi channel (subprocess)
+-------------------------------------------------
 
 Build the binary once, then pass an :class:`~netrl.NS3WifiConfig`:
 

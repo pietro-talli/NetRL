@@ -1,13 +1,20 @@
 """
 NetRL setup.py
 ==============
-Builds the pybind11 C++ extension (netcomm) and installs the netrl package.
+Builds the pybind11 C++ extensions:
+1. netcomm - Gilbert-Elliott channel (pure C++)
+2. netrl_ext - NS3 WiFi channel (if NS3 is installed)
 
 Quick start
 -----------
-# Install Python deps + build C++ extension + install package in editable mode:
-    pip install pybind11 numpy gymnasium
+# Install with NS3 support (recommended):
     pip install -e .
+
+# This automatically:
+    - Installs ns3 via pip
+    - Detects NS3 installation
+    - Builds netcomm extension
+    - Builds netrl_ext extension (NS3 pybind11 binding)
 
 # Build the .so in-place (importable without install):
     python setup.py build_ext --inplace
@@ -17,15 +24,63 @@ Quick start
 
 Notes
 -----
-- Requires GCC >= 9 or Clang >= 10 (C++17).
+- Requires GCC >= 9 or Clang >= 10 (C++17/C++20).
 - cmake is NOT needed; setuptools + pybind11.setup_helpers handle everything.
-- The built .so will be named something like:
+- NS3 is now installed automatically via pip (pip install ns3)
+- The built .so files will be named something like:
     netcomm.cpython-311-x86_64-linux-gnu.so
+    netrl_ext.cpython-311-x86_64-linux-gnu.so
 """
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup, find_packages
 import pybind11
+import subprocess
+import sys
+import os
+
+
+def get_ns3_flags():
+    """Detect NS3 installation and return include/lib flags."""
+    try:
+        # Try to detect pip-installed ns3
+        ns3_spec = __import__('importlib.util').util.find_spec('ns3')
+        if ns3_spec and ns3_spec.submodule_search_locations:
+            for p in list(ns3_spec.submodule_search_locations):
+                candidate = os.path.join(os.path.dirname(p), 'ns3')
+                if os.path.isfile(os.path.join(candidate, 'include', 'ns3', 'simulator.h')):
+                    ns3_inc = os.path.join(candidate, 'include')
+                    ns3_lib = os.path.join(candidate, 'lib64')
+                    if os.path.isdir(ns3_lib):
+                        # Get version from library (e.g., libns3.44-core.so)
+                        try:
+                            import glob
+                            libs = glob.glob(os.path.join(ns3_lib, 'libns3.*-core*.so'))
+                            if libs:
+                                import re
+                                match = re.search(r'libns3\.(\d+)', libs[0])
+                                if match:
+                                    ver = match.group(1)
+                                    return {
+                                        'include_dirs': [ns3_inc],
+                                        'library_dirs': [ns3_lib],
+                                        'libraries': [
+                                            f'ns3.{ver}-core',
+                                            f'ns3.{ver}-network',
+                                            f'ns3.{ver}-internet',
+                                            f'ns3.{ver}-wifi',
+                                            f'ns3.{ver}-mobility',
+                                            f'ns3.{ver}-propagation',
+                                        ],
+                                    }
+                        except Exception:
+                            pass
+    except Exception:
+        pass
+
+    # Return empty dict if NS3 not found (will be optional)
+    return {'include_dirs': [], 'library_dirs': [], 'libraries': []}
+
 
 ext_modules = [
     Pybind11Extension(
@@ -40,6 +95,29 @@ ext_modules = [
         cxx_std=17,
     ),
 ]
+
+# Add NS3 WiFi pybind11 extension if NS3 is available
+ns3_flags = get_ns3_flags()
+if ns3_flags['libraries']:
+    extra_link_args = [f"-Wl,-rpath,{lib_dir}" for lib_dir in ns3_flags['library_dirs']]
+    ext_modules.append(
+        Pybind11Extension(
+            name="netrl_ext",
+            sources=["src/ns3_wifi_channel_pybind11.cpp"],
+            include_dirs=[pybind11.get_include()] + ns3_flags['include_dirs'],
+            library_dirs=ns3_flags['library_dirs'],
+            libraries=ns3_flags['libraries'],
+            extra_compile_args=[
+                "-O3",
+                "-std=c++20",
+                "-fPIC",
+                "-fvisibility=hidden",
+            ],
+            extra_link_args=extra_link_args,
+            cxx_std=20,
+        )
+    )
+
 
 setup(
     name="netrl",
@@ -56,6 +134,7 @@ setup(
         "gymnasium>=0.29",
         "numpy>=1.24",
         "pybind11>=2.11",
+        "ns3>=4.44",  # NS3 simulator (for fast pybind11 channel)
     ],
     extras_require={
         "dev": ["pytest>=7.0", "matplotlib>=3.7"],

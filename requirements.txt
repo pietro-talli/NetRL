@@ -2,6 +2,7 @@ gymnasium>=0.29
 numpy>=1.24
 pybind11>=2.11
 setuptools>=65
+ns3>=3.44.post
 
 # dev/test
 pytest>=7.0
