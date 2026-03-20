@@ -53,9 +53,16 @@ Four channel backends are available:
 
 ### 1. Python package, GE channel, and fast WiFi channel
 
-The Gilbert-Elliott channel (`netcomm`) and the fast ns-3 WiFi channel (`_netrl_ext`) are both compiled as C++ pybind11 extensions. Install everything with a single command:
+The Gilbert-Elliott channel (`netcomm`) and the fast ns-3 WiFi channel (`_netrl_ext`) are both compiled as C++ pybind11 extensions. Install everything with:
 
 ```bash
+pip install netrl
+```
+
+If you want to edit the code and experiment with mmwave and 5G backends, clone the repo and install in editable mode:
+```bash
+git clone https://github.com/pietro-talli/NetRL.git
+cd NetRL
 pip install -e .
 ```
 
