@@ -48,9 +48,13 @@ def get_ns3_flags():
         if ns3_spec and ns3_spec.submodule_search_locations:
             for p in list(ns3_spec.submodule_search_locations):
                 candidate = os.path.join(os.path.dirname(p), 'ns3')
-                if os.path.isfile(os.path.join(candidate, 'include', 'ns3', 'simulator.h')):
+
+                # First check: look for simulator.h
+                simulator_h = os.path.join(candidate, 'include', 'ns3', 'simulator.h')
+                if os.path.isfile(simulator_h):
                     ns3_inc = os.path.join(candidate, 'include')
                     ns3_lib = os.path.join(candidate, 'lib64')
+
                     if os.path.isdir(ns3_lib):
                         # Get version from library (e.g., libns3.44-core.so)
                         try:
@@ -61,6 +65,7 @@ def get_ns3_flags():
                                 match = re.search(r'libns3\.(\d+)', libs[0])
                                 if match:
                                     ver = match.group(1)
+                                    print(f"[netrl] Detected NS3 version {ver} at {candidate}")
                                     return {
                                         'include_dirs': [ns3_inc],
                                         'library_dirs': [ns3_lib],
@@ -73,12 +78,13 @@ def get_ns3_flags():
                                             f'ns3.{ver}-propagation',
                                         ],
                                     }
-                        except Exception:
-                            pass
-    except Exception:
-        pass
+                        except Exception as e:
+                            print(f"[netrl] Warning: could not extract NS3 version: {e}")
+    except Exception as e:
+        print(f"[netrl] Warning: NS3 detection failed: {e}")
 
     # Return empty dict if NS3 not found (will be optional)
+    print("[netrl] NS3 not found - netrl_ext extension will not be built")
     return {'include_dirs': [], 'library_dirs': [], 'libraries': []}
 
 
@@ -99,6 +105,7 @@ ext_modules = [
 # Add NS3 WiFi pybind11 extension if NS3 is available
 ns3_flags = get_ns3_flags()
 if ns3_flags['libraries']:
+    print("[netrl] Building netrl_ext (NS3 WiFi pybind11 extension)")
     extra_link_args = [f"-Wl,-rpath,{lib_dir}" for lib_dir in ns3_flags['library_dirs']]
     ext_modules.append(
         Pybind11Extension(
@@ -117,6 +124,8 @@ if ns3_flags['libraries']:
             cxx_std=20,
         )
     )
+else:
+    print("[netrl] NS3 not available - netrl_ext extension will NOT be built")
 
 
 setup(
