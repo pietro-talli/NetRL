@@ -46,6 +46,10 @@ Key Improvements
 
 from __future__ import annotations
 
+import ctypes
+import glob
+import importlib.util
+import os
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -53,13 +57,51 @@ import numpy as np
 from netrl.channels.comm_channel import CommChannel
 from netrl.channels.network_config import NetworkConfig
 
+
+def _preload_ns3_shared_libs() -> str | None:
+    """Load ns3 shared libraries globally so netrl_ext can resolve them."""
+    spec = importlib.util.find_spec("ns3")
+    if not spec or not spec.submodule_search_locations:
+        return None
+
+    ns3_base = list(spec.submodule_search_locations)[0]
+    lib_dir = os.path.join(ns3_base, "lib64")
+    if not os.path.isdir(lib_dir):
+        return None
+
+    load_mode = 0
+    if hasattr(os, "RTLD_NOW"):
+        load_mode |= os.RTLD_NOW
+    if hasattr(os, "RTLD_GLOBAL"):
+        load_mode |= os.RTLD_GLOBAL
+
+    # Load in dependency-friendly order before importing the pybind extension.
+    for module in ["core", "network", "internet", "mobility", "propagation", "wifi"]:
+        matches = sorted(glob.glob(os.path.join(lib_dir, f"libns3.*-{module}.so")))
+        if matches:
+            ctypes.CDLL(matches[0], mode=load_mode)
+
+    return lib_dir
+
+
 try:
-    import netrl_ext  # Compiled pybind11 extension
-except ImportError as exc:
-    raise ImportError(
-        "netrl_ext C++ extension not found. "
-        "Run: pip install -e . && python setup.py build_ext --inplace"
-    ) from exc
+    import _netrl_ext  # Compiled pybind11 extension
+except ImportError:
+    preloaded_lib_dir = _preload_ns3_shared_libs()
+    try:
+        import _netrl_ext  # type: ignore[no-redef]
+    except ImportError as exc:
+        hint = ""
+        if preloaded_lib_dir:
+            hint = (
+                "\nIf importing netrl_ext directly, export LD_LIBRARY_PATH first:\n"
+                f"  export LD_LIBRARY_PATH={preloaded_lib_dir}:$LD_LIBRARY_PATH"
+            )
+        raise ImportError(
+            "netrl_ext C++ extension could not be loaded. "
+            "Run: pip install -e . && python setup.py build_ext --inplace"
+            f"{hint}"
+        ) from exc
 
 
 class NS3WiFiChannelFast(CommChannel):
@@ -100,7 +142,7 @@ class NS3WiFiChannelFast(CommChannel):
         packet_size_bytes   : int            Default packet size (bytes).
         """
         self._config = config
-        self._channel = netrl_ext.NS3WiFiChannel(
+        self._channel = _netrl_ext.NS3WiFiChannel(
             distance_m=distance_m,
             step_duration_ms=step_duration_ms,
             tx_power_dbm=tx_power_dbm,

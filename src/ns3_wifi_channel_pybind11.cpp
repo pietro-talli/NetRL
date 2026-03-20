@@ -376,7 +376,7 @@ class NS3WiFiChannel {
 // pybind11 bindings
 // ============================================================================
 
-PYBIND11_MODULE(netrl_ext, m)
+PYBIND11_MODULE(_netrl_ext, m)
 {
     m.doc() = R"doc(
 NetRL NS3 channel extensions (pybind11 bindings).
