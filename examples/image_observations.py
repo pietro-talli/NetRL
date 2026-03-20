@@ -1,5 +1,5 @@
 from netrl import NetworkedEnv, NetworkConfig
-from netrl.channels.ns3_wifi_config import NS3WifiConfig
+from netrl.channels.ns3_wifi_fast_config import NS3WiFiChannelFastConfig
 import gymnasium as gym
 from netrl.utils.image_env_wrapper import ImageEnvWrapper
 import numpy as np
@@ -14,10 +14,10 @@ env = ImageEnvWrapper(env, height=64, width=64, channels=3)
 
 net_env = NetworkedEnv(env, 
                        config, 
-                       channel_config=NS3WifiConfig(step_duration_ms=20.0, 
-                                                    distance_m=45.0,
-                                                    tx_power_dbm=20.0,
-                                                    loss_exponent=3.0))
+                       channel_config=NS3WiFiChannelFastConfig(step_duration_ms=20.0, 
+                                                                distance_m=45.0,
+                                                                tx_power_dbm=20.0,
+                                                                loss_exponent=3.0))
 
 obs, info = net_env.reset()
 print(obs.keys())  # dict_keys(['observations', 'recv_mask'])

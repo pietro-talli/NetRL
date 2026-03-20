@@ -4,7 +4,8 @@
 # Compile src/ns3_mmwave_sim.cc against the local ns3-mmwave build.
 #
 # Usage:
-#   bash src/build_ns3_mmwave_sim.sh [--debug|--release]
+#   bash src/build_ns3_mmwave_sim.sh [--debug|--release] [--ns3-mmwave-dir PATH]
+#   bash src/build_ns3_mmwave_sim.sh [--debug|--release] [PATH]
 #
 # Output:
 #   src/ns3_mmwave_sim  (binary placed next to this script)
@@ -12,7 +13,7 @@
 # Requirements:
 #   - g++ with C++17 support (GCC >= 9)
 #   - Compiled ns3-mmwave source tree at
-#     /home/dianalab/Projects/ns3-mmwave/build
+#     /home/dianalab/Projects/ns3-mmwave/build (default)
 #
 set -euo pipefail
 
@@ -22,10 +23,42 @@ OUTPUT="$SCRIPT_DIR/ns3_mmwave_sim"
 
 # --- Build mode ---
 OPT_FLAGS="-O2"
-for arg in "$@"; do
-    case "$arg" in
-        --debug)   OPT_FLAGS="-O0 -g" ;;
-        --release) OPT_FLAGS="-O2"     ;;
+NS3_MMWAVE_DIR="/home/dianalab/Projects/ns3-mmwave"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --debug)
+            OPT_FLAGS="-O0 -g"
+            shift
+            ;;
+        --release)
+            OPT_FLAGS="-O2"
+            shift
+            ;;
+        --ns3-mmwave-dir)
+            if [[ $# -lt 2 ]]; then
+                echo "ERROR: --ns3-mmwave-dir requires a path argument"
+                exit 1
+            fi
+            NS3_MMWAVE_DIR="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: bash src/build_ns3_mmwave_sim.sh [--debug|--release] [--ns3-mmwave-dir PATH]"
+            echo "   or: bash src/build_ns3_mmwave_sim.sh [--debug|--release] [PATH]"
+            exit 0
+            ;;
+        *)
+            # Support positional PATH for convenience.
+            if [[ -z "${POSITIONAL_PATH_SET:-}" ]]; then
+                NS3_MMWAVE_DIR="$1"
+                POSITIONAL_PATH_SET=1
+                shift
+            else
+                echo "ERROR: Unknown argument '$1'"
+                exit 1
+            fi
+            ;;
     esac
 done
 
@@ -33,7 +66,6 @@ echo "=== NetRL ns3 mmWave simulation build ==="
 echo "  Source : $SOURCE"
 
 # --- Detect ns3-mmwave build ------------------------------------------------
-NS3_MMWAVE_DIR="/home/dianalab/Projects/ns3-mmwave"
 NS3_BUILD="$NS3_MMWAVE_DIR/build"
 
 if [ ! -f "$NS3_BUILD/lib/libns3.42-mmwave-default.so" ]; then

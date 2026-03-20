@@ -4,6 +4,7 @@ NetRL setup.py
 Builds the pybind11 C++ extensions:
 1. netcomm - Gilbert-Elliott channel (pure C++)
 2. _netrl_ext - NS3 WiFi channel backend (if NS3 is installed)
+3. _netrl_multi_ue_ext - NS3 WiFi multi-UE backend (if NS3 is installed)
 
 Quick start
 -----------
@@ -15,6 +16,7 @@ Quick start
     - Detects NS3 installation
     - Builds netcomm extension
     - Builds _netrl_ext extension (NS3 pybind11 backend)
+    - Builds _netrl_multi_ue_ext extension (NS3 pybind11 backend)
 
 # Build the .so in-place (importable without install):
     python setup.py build_ext --inplace
@@ -30,6 +32,7 @@ Notes
 - The built .so files will be named something like:
     netcomm.cpython-311-x86_64-linux-gnu.so
     _netrl_ext.cpython-311-x86_64-linux-gnu.so
+    _netrl_multi_ue_ext.cpython-311-x86_64-linux-gnu.so
 """
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
@@ -124,8 +127,26 @@ if ns3_flags['libraries']:
             cxx_std=20,
         )
     )
+    print("[netrl] Building _netrl_multi_ue_ext (NS3 WiFi multi-UE pybind11 backend)")
+    ext_modules.append(
+        Pybind11Extension(
+            name="_netrl_multi_ue_ext",
+            sources=["src/ns3_wifi_multi_ue_channel_pybind11.cpp"],
+            include_dirs=[pybind11.get_include()] + ns3_flags['include_dirs'],
+            library_dirs=ns3_flags['library_dirs'],
+            libraries=ns3_flags['libraries'],
+            extra_compile_args=[
+                "-O3",
+                "-std=c++20",
+                "-fPIC",
+                "-fvisibility=hidden",
+            ],
+            extra_link_args=extra_link_args,
+            cxx_std=20,
+        )
+    )
 else:
-    print("[netrl] NS3 not available - netrl_ext extension will NOT be built")
+    print("[netrl] NS3 not available - NS3 pybind11 extensions will NOT be built")
 
 
 setup(

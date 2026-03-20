@@ -14,7 +14,7 @@ Four channel backends are available:
 | **ns-3 5G mmWave** | Full EPC/NR simulation via ns-3-mmwave — 3GPP TR 38.901 path-loss, HARQ, RLC | `NS3MmWaveConfig` | ns-3-mmwave source build |
 | **ns-3 5G-LENA NR** | Full NR + EPC simulation via 5G-LENA (contrib/nr) — 3GPP channel, beamforming, numerology | `NS3LenaConfig` | 5G-LENA source build |
 
-> **Recommendation:** Use `NS3WiFiChannelFastConfig` for all 802.11a WiFi experiments. It provides identical physical simulation to `NS3WifiConfig` but runs **15–20× faster** by eliminating subprocess IPC overhead — and it is compiled automatically when you run `pip install -e .`.
+> **Recommendation:** Use `NS3WiFiChannelFastConfig` for all 802.11a WiFi experiments. It provides identical physical simulation to `NS3WifiConfig` but runs **2-3× faster** by eliminating subprocess IPC overhead — and it is compiled automatically when you run `pip install -e .`.
 
 ---
 
@@ -53,7 +53,7 @@ Four channel backends are available:
 
 ### 1. Python package, GE channel, and fast WiFi channel
 
-The Gilbert-Elliott channel (`netcomm`) and the fast ns-3 WiFi channel (`netrl_ext`) are both compiled as C++ pybind11 extensions. Install everything with a single command:
+The Gilbert-Elliott channel (`netcomm`) and the fast ns-3 WiFi channel (`_netrl_ext`) are both compiled as C++ pybind11 extensions. Install everything with a single command:
 
 ```bash
 pip install -e .
@@ -62,7 +62,7 @@ pip install -e .
 This automatically:
 1. Installs all Python dependencies (including `ns3 ≥ 3.44`)
 2. Compiles `netcomm` — the Gilbert-Elliott C++ backend
-3. Detects the pip-installed `ns3` library and **compiles `netrl_ext`** — the fast WiFi pybind11 binding
+3. Detects the pip-installed `ns3` library and **compiles `_netrl_ext`** — the fast WiFi pybind11 binding
 
 The fast WiFi channel (`NS3WiFiChannelFastConfig`) is then immediately available — no extra build step required.
 
@@ -70,17 +70,9 @@ The fast WiFi channel (`NS3WiFiChannelFastConfig`) is then immediately available
 from netrl import NetworkedEnv, NetworkConfig, NS3WiFiChannelFastConfig
 ```
 
-> If `ns3` is not installed or cannot be detected, `netrl_ext` is silently skipped and only `netcomm` is built. You can still install ns3 later and rebuild with `pip install -e .` or `python setup.py build_ext --inplace`.
-
-To build extensions in-place without installing:
-
-```bash
-python setup.py build_ext --inplace
-```
-
 ### 2. ns-3 WiFi binary (subprocess version)
 
-The subprocess ns-3 backend runs the simulation in a **separate process** and communicates via stdin/stdout pipes. It is slower than the fast pybind11 channel but requires no C++20 compiler.  Compile the binary once before use:
+The subprocess ns-3 backend runs the simulation in a **separate process** and communicates via stdin/stdout pipes. Compile the binary once before use:
 
 ```bash
 bash src/build_ns3_sim.sh
@@ -93,7 +85,7 @@ The script auto-detects your ns-3 installation, compiles `src/ns3_wifi_sim.cc`, 
 The mmWave backend requires a separate binary built against [ns-3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave) (ns-3 3.42). Compile it once before use:
 
 ```bash
-bash src/build_ns3_mmwave_sim.sh
+bash src/build_ns3_mmwave_sim.sh --ns3-mmwave-dir /path/to/ns3-mmwave
 ```
 
 The script expects ns-3-mmwave to be built at `/home/dianalab/Projects/ns3-mmwave/build` (edit the `NS3_MMWAVE_BUILD` variable at the top of the script to change the path).
@@ -103,17 +95,10 @@ The script expects ns-3-mmwave to be built at `/home/dianalab/Projects/ns3-mmwav
 The 5G-LENA backend requires a separate binary built against your local 5G-LENA tree (contrib/nr). Compile it once before use:
 
 ```bash
-bash src/build_ns3_lena_sim.sh
+bash src/build_ns3_lena_sim.sh --ns3-lena-dir /path/to/5g-lena/ns-3-dev
 ```
 
 By default, the script expects 5G-LENA at `/home/dianalab/Projects/5g-lena/ns-3-dev`.
-To override:
-
-```bash
-NS3_LENA_DIR=/path/to/5g-lena/ns-3-dev bash src/build_ns3_lena_sim.sh
-```
-
----
 
 ## Quick Start
 
@@ -147,9 +132,7 @@ for _ in range(1000):
         obs, info = env.reset()
 ```
 
-### ns-3 WiFi channel (fast — recommended)
-
-The fast WiFi channel runs the same 802.11a OFDM simulation as the subprocess version but as an **in-process C++ binding** — eliminating subprocess spawn and pipe IPC overhead entirely.
+### ns-3 WiFi channel 
 
 ```python
 import gymnasium as gym
@@ -177,7 +160,7 @@ for _ in range(1000):
         obs, info = env.reset()
 ```
 
-> **No subprocess, no binary to build.** The `netrl_ext` extension is compiled automatically during `pip install -e .` and linked directly into the Python process.  Performance is **15–20× faster** than the subprocess variant, with lower memory usage and instant startup.
+> **No subprocess, no binary to build.** The `netrl_ext` extension is compiled automatically during `pip install -e .` and linked directly into the Python process.  Performance is **2-3× faster** than the subprocess variant, with lower memory usage and instant startup.
 
 ### ns-3 WiFi channel (subprocess)
 

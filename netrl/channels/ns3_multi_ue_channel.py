@@ -83,6 +83,9 @@ import numpy as np
 from netrl.channels.comm_channel import CommChannel
 from netrl.channels.network_config import NetworkConfig
 from netrl.channels.ns3_wifi_multi_ue_config import NS3WifiMultiUEConfig
+from netrl import netrl_multi_ue_ext
+
+_HAS_MULTI_UE_PYBIND = True
 
 _DEFAULT_SIM_BINARY = os.path.normpath(
     os.path.join(
@@ -117,6 +120,9 @@ class NS3WifiMultiUEBackend:
     def __init__(self, ns3_cfg: NS3WifiMultiUEConfig) -> None:
         self.ns3_cfg = ns3_cfg
 
+        self._native = None
+        self._use_pybind = _HAS_MULTI_UE_PYBIND
+
         self._proc: Optional[subprocess.Popen] = None
         self._stderr_buf: deque = deque(maxlen=200)
 
@@ -127,7 +133,10 @@ class NS3WifiMultiUEBackend:
         # Reset coordination
         self._reset_pending: int = 0
 
-        self._start_subprocess()
+        if self._use_pybind:
+            self._start_native_backend()
+        else:
+            self._start_subprocess()
 
     # -----------------------------------------------------------------------
     # Public API (called by NS3WifiUEChannel instances)
@@ -135,6 +144,11 @@ class NS3WifiMultiUEBackend:
 
     def transmit(self, ue_id: int, step_id: int, pkt_size: int) -> None:
         """Send TRANSMIT <ue_id> <step_id> <pkt_size> and wait for OK."""
+        if self._use_pybind:
+            assert self._native is not None
+            self._native.transmit(ue_id, step_id, pkt_size)
+            return
+
         self._send_command(f"TRANSMIT {ue_id} {step_id} {pkt_size}")
         resp = self._read_line()
         if resp != "OK":
@@ -162,6 +176,15 @@ class NS3WifiMultiUEBackend:
         if step < self._last_flushed_step:
             # Should not happen under normal CentralNode usage; return empty.
             return {}
+
+        if self._use_pybind:
+            assert self._native is not None
+            result: Dict[int, List[int]] = {}
+            for uid, sid in self._native.flush(step):
+                result.setdefault(int(uid), []).append(int(sid))
+            self._last_flushed_step = step
+            self._flush_cache = result
+            return result
 
         self._send_command(f"FLUSH {step}")
         response = self._read_line()
@@ -195,12 +218,30 @@ class NS3WifiMultiUEBackend:
             self._reset_pending = 0
             self._last_flushed_step = -1
             self._flush_cache = {}
+
+            if self._use_pybind:
+                assert self._native is not None
+                self._native.reset()
+                return
+
             self._send_command("RESET")
             resp = self._read_line()
             if resp != "OK":
                 raise RuntimeError(
                     f"NS3WifiMultiUEBackend reset: unexpected response '{resp}'"
                 )
+
+    def _start_native_backend(self) -> None:
+        cfg = self.ns3_cfg
+        self._native = netrl_multi_ue_ext.NS3WiFiMultiUEChannel(
+            n_ues=cfg.n_ues,
+            distances_m=cfg.distances_m,
+            step_duration_ms=cfg.step_duration_ms,
+            tx_power_dbm=cfg.tx_power_dbm,
+            loss_exponent=cfg.loss_exponent,
+            max_retries=cfg.max_retries,
+            packet_size_bytes=cfg.packet_size_bytes,
+        )
 
     # -----------------------------------------------------------------------
     # Subprocess management (mirrors NS3WifiChannel implementation)
@@ -343,6 +384,10 @@ class NS3WifiMultiUEBackend:
         return "\n".join(list(self._stderr_buf)[-max_lines:])
 
     def __del__(self) -> None:
+        if self._use_pybind:
+            self._native = None
+            return
+
         try:
             if self._proc is not None and self._proc.poll() is None:
                 self._send_command("QUIT")

@@ -4,7 +4,8 @@
 # Compile src/ns3_lena_sim.cc against a local 5G-LENA ns-3 build.
 #
 # Usage:
-#   bash src/build_ns3_lena_sim.sh [--debug|--release]
+#   bash src/build_ns3_lena_sim.sh [--debug|--release] [--ns3-lena-dir PATH]
+#   bash src/build_ns3_lena_sim.sh [--debug|--release] [PATH]
 #
 # Environment override:
 #   NS3_LENA_DIR=/path/to/5g-lena/ns-3-dev
@@ -16,14 +17,47 @@ SOURCE="$SCRIPT_DIR/ns3_lena_sim.cc"
 OUTPUT="$SCRIPT_DIR/ns3_lena_sim"
 
 OPT_FLAGS="-O2"
-for arg in "$@"; do
-    case "$arg" in
-        --debug)   OPT_FLAGS="-O0 -g" ;;
-        --release) OPT_FLAGS="-O2" ;;
+NS3_LENA_DIR="${NS3_LENA_DIR:-/home/dianalab/Projects/5g-lena/ns-3-dev}"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --debug)
+            OPT_FLAGS="-O0 -g"
+            shift
+            ;;
+        --release)
+            OPT_FLAGS="-O2"
+            shift
+            ;;
+        --ns3-lena-dir)
+            if [[ $# -lt 2 ]]; then
+                echo "ERROR: --ns3-lena-dir requires a path argument"
+                exit 1
+            fi
+            NS3_LENA_DIR="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: bash src/build_ns3_lena_sim.sh [--debug|--release] [--ns3-lena-dir PATH]"
+            echo "   or: bash src/build_ns3_lena_sim.sh [--debug|--release] [PATH]"
+            echo "Default path: /home/dianalab/Projects/5g-lena/ns-3-dev"
+            echo "Env override: NS3_LENA_DIR=/path/to/5g-lena/ns-3-dev"
+            exit 0
+            ;;
+        *)
+            # Support positional PATH for convenience.
+            if [[ -z "${POSITIONAL_PATH_SET:-}" ]]; then
+                NS3_LENA_DIR="$1"
+                POSITIONAL_PATH_SET=1
+                shift
+            else
+                echo "ERROR: Unknown argument '$1'"
+                exit 1
+            fi
+            ;;
     esac
 done
 
-NS3_LENA_DIR="${NS3_LENA_DIR:-/home/dianalab/Projects/5g-lena/ns-3-dev}"
 NS3_BUILD="$NS3_LENA_DIR/build"
 NS3_INC="$NS3_BUILD/include"
 NS3_LIB="$NS3_BUILD/lib"
