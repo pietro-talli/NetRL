@@ -5,7 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "netrl"
 version = "0.2.0"
-description = "Networked RL simulation platform — gymnasium wrapper with Gilbert-Elliott channel (C++ backend)"
+authors = [
+  { name="Pietro Talli", email="pietrotalli@gmail.com" },
+]
+description = "Networked RL simulation platform — gymnasium wrapper with communication channel simulation."
+readme = "README.md"
 license = {text = "GPL-2.0-only"}
 requires-python = ">=3.10"
 dependencies = [
@@ -20,3 +24,8 @@ dev = ["pytest>=7.0", "matplotlib>=3.7"]
 
 [tool.setuptools.packages.find]
 exclude = ["tests*"]
+
+
+[project.urls]
+Homepage = "https://github.com/pietro-talli/NetRL"
+Documenation = "https://netrl.readthedocs.io/en/latest/index.html"
