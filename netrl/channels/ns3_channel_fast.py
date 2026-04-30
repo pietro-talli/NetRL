@@ -92,6 +92,7 @@ class NS3WiFiChannelFast(CommChannel):
         packet_size_bytes   : int            Default packet size (bytes).
         """
         self._config = config
+        self._pending: dict[int, np.ndarray] = {}
         self._channel = netrl_ext.NS3WiFiChannel(
             distance_m=distance_m,
             step_duration_ms=step_duration_ms,
@@ -103,33 +104,20 @@ class NS3WiFiChannelFast(CommChannel):
         )
 
     def transmit(self, obs: np.ndarray, step: int, packet_size: Optional[int] = None) -> None:
-        """
-        Schedule transmission of observation at given step.
-
-        Parameters
-        ----------
-        obs         : np.ndarray  Observation to transmit.
-        step        : int         Current step counter.
-        packet_size : int | None  Packet size in bytes (None = default).
-        """
-        obs_c = np.ascontiguousarray(obs, dtype=np.float64)
-        if packet_size is None:
-            self._channel.transmit(obs_c, step)
-        else:
-            self._channel.transmit(obs_c, step, packet_size)
+        self._pending[step] = obs.copy()
+        size = packet_size if packet_size is not None else self._channel.packet_size_bytes
+        self._channel.transmit(step, size)
 
     def flush(self, step: int) -> List[Tuple[int, np.ndarray]]:
-        """
-        Advance simulation and collect arrived packets.
-
-        Returns
-        -------
-        List of (arrival_step, observation) tuples.
-        """
-        return self._channel.flush(step)
+        arrived = self._channel.flush(step)
+        result = []
+        for tx_step in arrived:
+            if tx_step in self._pending:
+                result.append((tx_step, self._pending.pop(tx_step)))
+        return result
 
     def reset(self) -> None:
-        """Reset simulation state."""
+        self._pending.clear()
         self._channel.reset()
 
     def get_channel_info(self) -> dict:

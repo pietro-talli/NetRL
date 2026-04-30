@@ -1,8 +1,9 @@
 from netrl import NS3WiFiChannelFast, NetworkConfig
 import numpy as np
+import time
 
 channel = NS3WiFiChannelFast(NetworkConfig(),
-                             distance_m=60.0,
+                             distance_m=20.0,
                              step_duration_ms=5.0)
 
 obs=np.zeros(10000)
@@ -10,16 +11,20 @@ channel.reset()  # Reset the channel to initialize it
 delays = []
 num_tx = 0
 
+start_time = time.time()
+
 for step in range(1000):
     if channel.get_channel_info()["pending_tx_count"] > 10:
         continue
     else:
-        channel.transmit(obs, step, 25000)
+        channel.transmit(obs, step, 4000)
         res = channel.flush(step)
         for transmission_step, obs in res:
             delay = step - transmission_step
             delays.append(delay)
             num_tx += 1
+
+print(f"FPS: {1000 / (time.time() - start_time):.2f}")
 
 print("Delays:", np.mean(delays), np.std(delays), num_tx)
 
@@ -34,15 +39,15 @@ from netrl import NS3WifiMultiUEConfig, make_multi_ue_wifi_factory
 # ---------------------------------------------------------------------------
 # 1. Configure the multi-UE WiFi network
 # ---------------------------------------------------------------------------
-N_UES = 5
+N_UES = 3
 node_ids = [f"ue_{i}" for i in range(N_UES)]
 
 ns3_cfg = NS3WifiMultiUEConfig(
     n_ues=N_UES,
-    distances_m=[30.0] * N_UES,   # All UEs at 30 m → uniform losses / retries
+    distances_m=[15, 20, 25],   # All UEs at 30 m → uniform losses / retries
     step_duration_ms=5.0,
     tx_power_dbm=20.0,
-    loss_exponent=3.4,
+    loss_exponent=3.0,
     max_retries=7,
     packet_size_bytes=1000,
 )
@@ -69,22 +74,24 @@ central = CentralNode(
 )
 
 central.reset()  # Reset to initialize channels
-delays = []
-
+delays = [[] for _ in node_ids]
 start_time = time.time()
 
 for step in range(1000):
     for node_id in node_ids:
-        if central.get_channel_info(node_id)["pending_count"] < 10:
-            obs = np.random.rand(*OBS_SHAPE).astype(OBS_DTYPE)
-            central.receive_from(node_id, obs, step, 2000)
+        
+        obs = np.random.rand(*OBS_SHAPE).astype(OBS_DTYPE)
+        central.receive_from(node_id, obs, step, 4000)
 
     for node_id in node_ids:
         res = central._channels[node_id].flush(step=step)
         for transmission_step, obs in res:
             delay = step - transmission_step
-            delays.append(delay)
+            delays[node_ids.index(node_id)].append(delay)
 
 print(f"FPS: {1000 / (time.time() - start_time):.2f}")
 
-print("Delays:", np.mean(delays), np.std(delays), len(delays))
+print([np.mean(delays[i]) for i in range(N_UES)])
+
+all_delays = [d for sublist in delays for d in sublist]
+print("Delays:", np.mean(all_delays), np.std(all_delays), len(all_delays))

@@ -427,8 +427,8 @@ class NS3WifiUEChannel(CommChannel):
         self._backend = backend
         self._config  = config
 
-        # step_id → (obs_copy, sent_at_step): observations awaiting ns-3 ack
-        self._pending: Dict[int, Tuple[np.ndarray, int]] = {}
+        # step_id → obs_copy: observations awaiting ns-3 ack
+        self._pending: Dict[int, np.ndarray] = {}
 
     # -----------------------------------------------------------------------
     # CommChannel interface
@@ -448,7 +448,7 @@ class NS3WifiUEChannel(CommChannel):
             if packet_size is not None
             else self._backend.ns3_cfg.packet_size_bytes
         )
-        self._pending[step] = (obs.copy(), step)
+        self._pending[step] = obs.copy()
         self._backend.transmit(self._ue_id, step, size)
 
     def flush(self, step: int) -> List[Tuple[int, np.ndarray]]:
@@ -469,16 +469,11 @@ class NS3WifiUEChannel(CommChannel):
         result: List[Tuple[int, np.ndarray]] = []
         for sid in step_ids:
             if sid in self._pending:
-                obs, _ = self._pending.pop(sid)
-                result.append((sid, obs))
+                result.append((sid, self._pending.pop(sid)))
 
         # Expire observations that stayed in-flight too long
         max_age = self._backend.ns3_cfg.max_pending_steps
-        expired = [
-            sid
-            for sid, (_, sent) in self._pending.items()
-            if step - sent > max_age
-        ]
+        expired = [sid for sid in self._pending if step - sid > max_age]
         for sid in expired:
             del self._pending[sid]
 
