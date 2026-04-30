@@ -62,7 +62,7 @@ class NS3WiFiMultiUEChannel {
         const uint32_t uid = static_cast<uint32_t>(ue_id);
         const uint32_t sid = static_cast<uint32_t>(step_id);
 
-        double offset_frac = 0.0; // TODO: Could randomize this per UE for more realism
+        double offset_frac = 0.01; // TODO: Could randomize this per UE for more realism
         double send_abs_ms = sim_start_ms_ + sid * step_duration_ms_ + step_duration_ms_ * offset_frac;
         double now_ms = Simulator::Now().GetMilliSeconds();
         double delay_ms = send_abs_ms - now_ms;
@@ -185,6 +185,8 @@ class NS3WiFiMultiUEChannel {
 
     void BuildTopology()
     {
+        Ipv4AddressGenerator::Reset();
+
         nodes_.Create(static_cast<uint32_t>(n_ues_ + 1));
 
         YansWifiChannelHelper channel_helper;

@@ -152,9 +152,9 @@ class NS3WiFiChannel {
         double delay_ms = send_time_ms - now_ms;
 
         if (delay_ms > 0.0) {
-            Simulator::Schedule(MilliSeconds(delay_ms), &NS3WiFiChannel::DoSend, this, step);
+            Simulator::Schedule(MilliSeconds(delay_ms), &NS3WiFiChannel::DoSend, this, step, packet_size);
         } else {
-            Simulator::Schedule(NanoSeconds(1), &NS3WiFiChannel::DoSend, this, step);
+            Simulator::Schedule(NanoSeconds(1), &NS3WiFiChannel::DoSend, this, step, packet_size);
         }
     }
 
@@ -178,13 +178,14 @@ class NS3WiFiChannel {
         // Create ReceivedPacket entries for each arrived packet
         for (uint32_t arrived_id : arrived_ids_) {
             // Find the corresponding PendingTransmission
-            for (const auto& tx : pending_tx_) {
-                if (tx.step_id == arrived_id) {
+            for (auto it = pending_tx_.begin(); it != pending_tx_.end(); ++it) {
+                if (it->step_id == arrived_id) {
                     ReceivedPacket rx;
                     rx.arrival_step = static_cast<int>(arrived_id);
-                    rx.data = tx.data;
-                    rx.shape = tx.shape;
+                    rx.data = it->data;
+                    rx.shape = it->shape;
                     pending_rx_.push_back(std::move(rx));
+                    pending_tx_.erase(it);
                     break;
                 }
             }
@@ -253,6 +254,8 @@ class NS3WiFiChannel {
 
     void BuildTopology()
     {
+        Ipv4AddressGenerator::Reset();
+
         // Create two nodes: STA and AP
         nodes_.Create(2);
 
@@ -339,10 +342,10 @@ class NS3WiFiChannel {
         }
     }
 
-    void DoSend(uint32_t step_id)
+    void DoSend(uint32_t step_id, int packet_size)
     {
         auto encoded = encode_step_id(step_id);
-        std::vector<uint8_t> payload(std::max(packet_size_bytes_, 4), 0);
+        std::vector<uint8_t> payload(std::max(packet_size, 4), 0);
         std::copy(encoded.begin(), encoded.end(), payload.begin());
 
         Ptr<Packet> pkt = Create<Packet>(payload.data(), payload.size());

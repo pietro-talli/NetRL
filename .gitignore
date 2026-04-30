@@ -21,6 +21,7 @@ build_ns3/
 dist/
 .pypirc
 *.egg-info/
+wheelhouse/
 
 .vscode/
 *_sim

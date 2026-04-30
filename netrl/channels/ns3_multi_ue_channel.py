@@ -470,7 +470,7 @@ class NS3WifiUEChannel(CommChannel):
         for sid in step_ids:
             if sid in self._pending:
                 obs, _ = self._pending.pop(sid)
-                result.append((step, obs))
+                result.append((sid, obs))
 
         # Expire observations that stayed in-flight too long
         max_age = self._backend.ns3_cfg.max_pending_steps

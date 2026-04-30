@@ -66,6 +66,8 @@ print()
 print("[3/4] Running transmission/reception test...")
 print()
 
+channel.reset()  # Initialize the channel
+
 try:
     num_steps = 100
     total_packets_sent = 0

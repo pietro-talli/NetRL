@@ -68,7 +68,7 @@ try:
     # Create fast WiFi channel config
     wifi_fast_config = NS3WiFiChannelFastConfig(
         distance_m=15.0,
-        step_duration_ms=2.0,
+        step_duration_ms=20.0,
         tx_power_dbm=20.0,
         loss_exponent=3.0,
         max_retries=7,
@@ -131,11 +131,11 @@ try:
         episode_rewards.append(episode_reward)
         episode_lengths.append(step + 1)
 
-        print(f"  Episode {episode + 1}/{num_episodes}:")
-        print(f"    Reward: {episode_reward:.1f}")
-        print(f"    Steps: {episode_lengths[-1]}")
-        print(f"    Time: {episode_time:.3f}s ({episode_lengths[-1] / episode_time:.1f} steps/sec)")
-        print(f"    Channel info: {info['channel_info']}")
+        #print(f"  Episode {episode + 1}/{num_episodes}:")
+        #print(f"    Reward: {episode_reward:.1f}")
+        #print(f"    Steps: {episode_lengths[-1]}")
+        #print(f"    Time: {episode_time:.3f}s ({episode_lengths[-1] / episode_time:.1f} steps/sec)")
+        #print(f"    Channel info: {info['channel_info']}")
 
     total_time = time.time() - total_start
 
@@ -157,7 +157,6 @@ try:
     print()
     print("The fast pybind11 channel works seamlessly with NetworkedEnv!")
     print(f"Performance: {sum(episode_lengths) / total_time:.1f} steps/sec")
-    print("(15-20x faster than subprocess version)")
 
 except Exception as e:
     print(f"❌ Test failed: {e}")
